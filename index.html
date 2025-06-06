@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -314,9 +313,22 @@
             setIndicator(elementName, title, 'Data Error', 'neutral', 'Koppel FRED API Key');
             return { ...defaultReturn, detail: 'API Key Mist', detailFull: 'FRED API Key niet geconfigureerd.' };
         }
-        const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&limit=2&sort_order=desc`;
+        
+        // Originele FRED URL
+        const fredUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&limit=2&sort_order=desc`;
+        
+        // URL voor de CORS proxy
+        // encodeURIComponent zorgt ervoor dat de fredUrl correct wordt meegegeven als query parameter aan de proxy
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fredUrl)}`;
+        
+        console.log("Fetching FRED via Proxy:", proxyUrl); // Log de URL die we daadwerkelijk fetchen
+
         try {
-            const data = await fetchWithCache(url);
+            // Gebruik de proxyUrl voor de fetch call
+            const data = await fetchWithCache(proxyUrl); 
+            // Omdat allorigins.win/raw?url= de response body direct doorgeeft als JSON,
+            // en FRED direct JSON teruggeeft, zou de 'data' variabele hier de geparste JSON van FRED moeten zijn.
+
             const observations = data.observations;
             if (observations && observations.length > 0) {
                 const latestObs = observations[0];
@@ -350,9 +362,16 @@
                 let fullDetailText = `${trendText} (${trendDescription})`;
                 setIndicator(elementName, title, fullDetailText, colorClass);
                 return { value: latestValue, colorClass, name: title, detail: trendText.split('(')[0].trim(), detailFull: fullDetailText, positiveChangeIsGood, change };
-            } else { setIndicator(elementName, title, 'Geen data (FRED)', 'neutral', 'Geen observaties van FRED.'); return { ...defaultReturn, detail: 'Geen data (FRED)', detailFull:'Geen observaties van FRED.' };}
+            } else { 
+                setIndicator(elementName, title, 'Geen data (FRED)', 'neutral', 'Geen observaties van FRED.'); 
+                return { ...defaultReturn, detail: 'Geen data (FRED)', detailFull:'Geen observaties van FRED. Mogelijk 404 via proxy.' };
+            }
         } catch (error) {
-            let errMsg = error.message && error.message.includes("API Fout:") ? error.message : "Failed to fetch";
+            let errMsg = error.message && error.message.includes("API Fout:") ? error.message : "Failed to fetch (FRED via Proxy)";
+            if (error.message && error.message.includes("404")) { // Specifieke check voor 404
+                errMsg = "FRED API 404 (Proxy): Resource niet gevonden.";
+            }
+            console.error("Error in fetchFredSeries (via Proxy):", error);
             setIndicator(elementName, title, 'Data Error', 'neutral', errMsg);
             return { ...defaultReturn, detail: 'Data Error', detailFull: errMsg };
         }
