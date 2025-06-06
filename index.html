@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geavanceerd Swingtrade Dashboard v2.7</title>
+    <title>Geavanceerd Swingtrade Dashboard v2.8</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0;
@@ -16,10 +16,42 @@
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .card { background-color: #fff; border-radius: 8px; padding: 18px; box-shadow: 0 3px 5px rgba(0,0,0,0.05); }
         .card h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.2em; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; }
+        
+        /* --- START Inklapbare sectie stijlen --- */
+        .card .collapsible-trigger { cursor: pointer; position: relative; }
+        .card .collapsible-trigger::after {
+            content: ' ▼'; /* Pijltje omlaag */
+            font-size: 0.7em;
+            position: absolute;
+            right: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease-in-out;
+        }
+        .card.collapsed .collapsible-trigger::after {
+            transform: translateY(-50%) rotate(-90deg); /* Pijltje links */
+        }
+        .collapsible-content {
+            /* Standaard zichtbaar, JS handelt display:none af */
+        }
+        /* --- EINDE Inklapbare sectie stijlen --- */
 
         .indicator { padding: 9px 11px; margin-bottom: 9px; border-radius: 5px; font-size: 0.9em; border: 1px solid transparent; }
         .indicator strong { display: block; margin-bottom: 3px; color: #111827; font-weight: 600; font-size:0.93em; }
+        /* --- START Sterrenscore stijlen --- */
+        .indicator strong .stars {
+            font-size: 0.9em;
+            margin-left: 8px;
+            color: #ffd700; /* Goudkleur */
+            letter-spacing: 1px;
+        }
+        .indicator strong .stars .dimmed {
+            color: #ccc;
+        }
+        /* --- EINDE Sterrenscore stijlen --- */
         .indicator span { font-size: 0.83em; color: #4b5563; }
+        .indicator .action-hint { font-size: 0.75em; color: #555; display: block; margin-top: 4px; font-style: italic;}
+
 
         .green { background-color: #dcfce7; border-color: #86efac; border-left: 4px solid #22c55e; }
         .yellow { background-color: #fef9c3; border-color: #fde047; border-left: 4px solid #eab308; }
@@ -45,6 +77,10 @@
         .condition-card .factors-list li:hover { background-color: rgba(0,0,0,0.05); }
         .factors-list .factor-positive::before { content: '🟢 '; font-size:0.75em; }
         .factors-list .factor-negative::before { content: '🔴 '; font-size:0.75em; }
+        /* --- START Strategie Hint Stijl --- */
+        .condition-card .strategy-hint-title { font-size: 0.75em; margin-top:12px; margin-bottom:3px; text-transform: uppercase; opacity:0.85; font-weight:600;}
+        .condition-card .strategy-hint-text { font-size: 0.85em; opacity: 0.95; font-style: italic; margin-bottom: 0;}
+        /* --- EINDE Strategie Hint Stijl --- */
 
         .very-positive { background-color: #16a34a; } .positive { background-color: #22c55e; }
         .negative { background-color: #f97316; } .very-negative { background-color: #dc2626; }
@@ -72,63 +108,73 @@
 <body>
 
     <div class="dashboard-header">
-        <h1>Geavanceerd Swingtrade Dashboard v2.7</h1>
+        <h1>Geavanceerd Swingtrade Dashboard v2.8</h1>
         <p title="Alle data wordt periodiek ververst. Trends voor crypto dominantie/ratio's worden zichtbaar na de tweede data-ophaling.">
             Analyse van macro, sentiment & marktindicatoren. <span id="lastUpdated"></span>
         </p>
     </div>
 
     <div class="grid-container">
-        <div class="card">
-            <h2 title="Indicatoren die de algemene economische gezondheid en het beleid weerspiegelen.">Macro Omgeving</h2>
-            <div id="m2Trend" class="indicator loading"><strong title="M2 Geldhoeveelheid: Brede maatstaf voor de geldhoeveelheid in een economie. Stijgend kan duiden op meer liquiditeit.">M2 Geldhoeveelheid Trend</strong><span>Laden...</span></div>
-            <div id="interest10yrTrend" class="indicator loading"><strong title="10-Year Treasury Yield: Rente op Amerikaanse staatsobligaties met een looptijd van 10 jaar. Dalend is vaak positief voor activa.">Rente Trend (10jr Treasury)</strong><span>Laden...</span></div>
-            <div id="interest2yrTrend" class="indicator loading"><strong title="2-Year Treasury Yield: Rente op Amerikaanse staatsobligaties met een looptijd van 2 jaar.">Rente Trend (2jr Treasury)</strong><span>Laden...</span></div>
-            <div id="yieldCurve" class="indicator loading"><strong title="Yield Curve (10jr - 2jr): Verschil tussen 10-jaars en 2-jaars rente. Een inverse curve (negatief) kan een recessie voorspellen.">Yield Curve (10j - 2j)</strong><span>Laden...</span></div>
-            <div id="fedStance" class="indicator loading"><strong title="Fed Beleid Stance: Interpretatie van het monetaire beleid van de Federal Reserve (Amerikaanse centrale bank), afgeleid van rentetrends.">Fed Beleid Stance</strong><span>Laden...</span></div>
-            <div id="unemploymentTrend" class="indicator loading"><strong title="Werkloosheidspercentage: Percentage van de beroepsbevolking dat werkloos is. Dalend is positief.">Werkloosheid Trend</strong><span>Laden...</span></div>
-            <div id="inflationTrend" class="indicator loading"><strong title="Consumer Price Index (CPI): Maatstaf voor inflatie. Dalende inflatie kan druk op de Fed verminderen.">Inflatie Trend (CPI Index)</strong><span>Laden...</span></div>
-            <div id="ppiTrend" class="indicator loading"><strong title="Producenten Prijs Index (PPI): Voorlopende indicator voor consumenteninflatie. Stijgend is negatief.">PPI Trend</strong><span>Laden...</span></div>
-            <div id="breakeven10yrTrend" class="indicator loading"><strong title="10-Year Breakeven Inflation Rate: Marktverwachting voor inflatie over de komende 10 jaar. Stijgend is negatief.">10jr Inflatieverwachting</strong><span>Laden...</span></div>
-            <div id="retailSalesTrend" class="indicator loading"><strong title="Detailhandelsverkopen: Totale verkopen van detailhandelszaken. Stijgend duidt op sterke consumentenuitgaven.">Retail Sales Trend</strong><span>Laden...</span></div>
-            <div id="ismPmiTrend" class="indicator loading"><strong title="ISM Manufacturing Purchasing Managers' Index: Index voor de productiesector. Boven 50 duidt op expansie.">ISM Manufacturing PMI</strong><span>Laden...</span></div>
-            <div class="api-key-note">Macro data vereist FRED API Key.</div>
+        <div class="card collapsible">
+            <h2 class="collapsible-trigger" title="Indicatoren die de algemene economische gezondheid en het beleid weerspiegelen.">Macro Omgeving</h2>
+            <div class="collapsible-content">
+                <div id="m2Trend" class="indicator loading" data-stars="2" title="M2 Geldhoeveelheid: Brede maatstaf voor de geldhoeveelheid in een economie. Stijgend kan duiden op meer liquiditeit."><strong>M2 Geldhoeveelheid Trend</strong><span>Laden...</span></div>
+                <div id="interest10yrTrend" class="indicator loading" data-stars="3" title="10-Year Treasury Yield: Rente op Amerikaanse staatsobligaties met een looptijd van 10 jaar. Dalend is vaak positief voor activa."><strong>Rente Trend (10jr Treasury)</strong><span>Laden...</span></div>
+                <div id="interest2yrTrend" class="indicator loading" data-stars="2" title="2-Year Treasury Yield: Rente op Amerikaanse staatsobligaties met een looptijd van 2 jaar."><strong>Rente Trend (2jr Treasury)</strong><span>Laden...</span></div>
+                <div id="yieldCurve" class="indicator loading" data-stars="3" title="Yield Curve (10jr - 2jr): Verschil tussen 10-jaars en 2-jaars rente. Een inverse curve (negatief) kan een recessie voorspellen."><strong>Yield Curve (10j - 2j)</strong><span>Laden...</span></div>
+                <div id="fedStance" class="indicator loading" data-stars="3" title="Fed Beleid Stance: Interpretatie van het monetaire beleid van de Federal Reserve (Amerikaanse centrale bank), afgeleid van rentetrends."><strong>Fed Beleid Stance</strong><span>Laden...</span></div>
+                <div id="unemploymentTrend" class="indicator loading" data-stars="2" title="Werkloosheidspercentage: Percentage van de beroepsbevolking dat werkloos is. Dalend is positief."><strong>Werkloosheid Trend</strong><span>Laden...</span></div>
+                <div id="inflationTrend" class="indicator loading" data-stars="3" title="Consumer Price Index (CPI): Maatstaf voor inflatie. Dalende inflatie kan druk op de Fed verminderen."><strong>Inflatie Trend (CPI Index)</strong><span>Laden...</span></div>
+                <div id="ppiTrend" class="indicator loading" data-stars="1" title="Producenten Prijs Index (PPI): Voorlopende indicator voor consumenteninflatie. Stijgend is negatief."><strong>PPI Trend</strong><span>Laden...</span></div>
+                <div id="breakeven10yrTrend" class="indicator loading" data-stars="2" title="10-Year Breakeven Inflation Rate: Marktverwachting voor inflatie over de komende 10 jaar. Stijgend is negatief."><strong>10jr Inflatieverwachting</strong><span>Laden...</span></div>
+                <div id="retailSalesTrend" class="indicator loading" data-stars="2" title="Detailhandelsverkopen: Totale verkopen van detailhandelszaken. Stijgend duidt op sterke consumentenuitgaven."><strong>Retail Sales Trend</strong><span>Laden...</span></div>
+                <div id="ismPmiTrend" class="indicator loading" data-stars="2" title="ISM Manufacturing Purchasing Managers' Index: Index voor de productiesector. Boven 50 duidt op expansie."><strong>ISM Manufacturing PMI</strong><span>Laden...</span></div>
+                <div class="api-key-note">Macro data vereist FRED API Key.</div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2 title="Indicatoren die de richting van kapitaalstromen en de status van globale activa weerspiegelen.">Geldstroom & Globale Indicatoren</h2>
-            <div id="dxyTrend" class="indicator loading"><strong title="US Dollar Index (DXY): Waarde van de US dollar.">US Dollar Index (DXY) Trend</strong><span>Laden...</span></div>
-            <div id="goldTrend" class="indicator loading"><strong title="Goudprijs via GLD ETF (proxy voor Goud XAU/USD)">Goud ETF (GLD) Trend</strong><span>Laden...</span></div>
-            <div id="oilTrend" class="indicator loading"><strong title="Olieprijs via USO ETF (proxy voor WTI Crude)">Olie ETF (USO) Trend</strong><span>Laden...</span></div>
-            <div id="copperTrend" class="indicator loading"><strong title="Koperprijs via CPER ETF: Barometer voor wereldwijde economische gezondheid. Stijgend is positief.">Koper ETF (CPER)</strong><span>Laden...</span></div>
-            <div id="bondSpreadsTrend" class="indicator loading"><strong title="High Yield Corporate Bond Spreads: Verschil in rente tussen risicovolle bedrijfsobligaties en veilige staatsobligaties. Dalende spreads zijn positief.">High Yield Bond Spreads</strong><span>Laden...</span></div>
-            <div class="api-key-note">Goud, Olie, Koper (ETF's): Finnhub/FMP API Key. Spreads: FRED API Key. DXY: FMP API Key.</div>
+        <div class="card collapsible">
+            <h2 class="collapsible-trigger" title="Indicatoren die de richting van kapitaalstromen en de status van globale activa weerspiegelen.">Geldstroom & Globale Indicatoren</h2>
+            <div class="collapsible-content">
+                <div id="dxyTrend" class="indicator loading" data-stars="3" title="US Dollar Index (DXY): Waarde van de US dollar."><strong>US Dollar Index (DXY) Trend</strong><span>Laden...</span></div>
+                <div id="goldTrend" class="indicator loading" data-stars="1" title="Goudprijs via GLD ETF (proxy voor Goud XAU/USD)"><strong>Goud ETF (GLD) Trend</strong><span>Laden...</span></div>
+                <div id="oilTrend" class="indicator loading" data-stars="2" title="Olieprijs via USO ETF (proxy voor WTI Crude)"><strong>Olie ETF (USO) Trend</strong><span>Laden...</span></div>
+                <div id="copperTrend" class="indicator loading" data-stars="2" title="Koperprijs via CPER ETF: Barometer voor wereldwijde economische gezondheid. Stijgend is positief."><strong>Koper ETF (CPER)</strong><span>Laden...</span></div>
+                <div id="bondSpreadsTrend" class="indicator loading" data-stars="3" title="High Yield Corporate Bond Spreads: Verschil in rente tussen risicovolle bedrijfsobligaties en veilige staatsobligaties. Dalende spreads zijn positief."><strong>High Yield Bond Spreads</strong><span>Laden...</span></div>
+                <div class="api-key-note">Goud, Olie, Koper (ETF's): Finnhub/FMP API Key. Spreads: FRED API Key. DXY: FMP API Key.</div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2 title="Metingen van het algemene gevoel of de psychologie van investeerders.">Markt Sentiment</h2>
-            <div id="cryptoFearGreed" class="indicator loading"><strong title="Crypto Fear & Greed Index: Meet het sentiment in de cryptomarkt.">Crypto Fear & Greed Index</strong><span>Laden...</span></div>
-            <div id="stockFearGreedVIX" class="indicator loading"><strong title="Volatility Index (VIX) als proxy voor Aandelen F&G">Aandelen F&G (VIX)</strong><span>Laden...</span></div>
-            <div class="api-key-note">VIX: Finnhub API Key.</div>
+        <div class="card collapsible">
+            <h2 class="collapsible-trigger" title="Metingen van het algemene gevoel of de psychologie van investeerders.">Markt Sentiment</h2>
+            <div class="collapsible-content">
+                <div id="cryptoFearGreed" class="indicator loading" data-stars="2" title="Crypto Fear & Greed Index: Meet het sentiment in de cryptomarkt. Contra-indicator."><strong>Crypto Fear & Greed Index</strong><span>Laden...</span></div>
+                <div id="stockFearGreedVIX" class="indicator loading" data-stars="2" title="Volatility Index (VIX) als proxy voor Aandelen F&G. Contra-indicator."><strong>Aandelen F&G (VIX)</strong><span>Laden...</span></div>
+                <div class="api-key-note">VIX: Finnhub API Key.</div>
+            </div>
         </div>
 
-        <div class="card crypto-market-card">
-            <h2 title="Indicatoren specifiek voor de interne dynamiek van de cryptomarkt.">Crypto Markt Intern</h2>
-            <div id="btcPriceTrend" class="indicator loading"><strong title="Bitcoin (BTC) Prijs Trend">Bitcoin (BTC) Prijs Trend</strong><span>Laden...</span></div>
-            <div id="ethPriceTrend" class="indicator loading"><strong title="Ethereum (ETH) Prijs Trend">Ethereum (ETH) Prijs Trend</strong><span>Laden...</span></div>
-            <div id="btcDominanceTrend" class="indicator loading"><strong title="Bitcoin Dominantie (BTC.D)">Bitcoin Dominantie (BTC.D)</strong><span>Laden...</span></div>
-            <div id="ethDominanceTrend" class="indicator loading"><strong title="Ethereum Dominantie (ETH.D)">Ethereum Dominantie (ETH.D)</strong><span>Laden...</span></div>
-            <div id="altcoinMarketCapTrend" class="indicator loading"><strong title="Altcoin Market Cap (Ex-BTC)">Altcoin Market Cap (Ex-BTC)</strong><span>Laden...</span></div>
-            <div id="ethBtcRatioTrend" class="indicator loading"><strong title="ETH/BTC Ratio Trend">ETH/BTC Ratio Trend</strong><span>Laden...</span></div>
-            <div class="api-key-note">Trends voor dominanties/ratio zichtbaar na 2e refresh.</div>
+        <div class="card crypto-market-card collapsible">
+            <h2 class="collapsible-trigger" title="Indicatoren specifiek voor de interne dynamiek van de cryptomarkt.">Crypto Markt Intern</h2>
+            <div class="collapsible-content">
+                <div id="btcPriceTrend" class="indicator loading" data-stars="1" title="Bitcoin (BTC) Prijs Trend"><strong>Bitcoin (BTC) Prijs Trend</strong><span>Laden...</span></div>
+                <div id="ethPriceTrend" class="indicator loading" data-stars="1" title="Ethereum (ETH) Prijs Trend"><strong>Ethereum (ETH) Prijs Trend</strong><span>Laden...</span></div>
+                <div id="btcDominanceTrend" class="indicator loading" data-stars="2" title="Bitcoin Dominantie (BTC.D). Dalend is vaak altcoin-positief."><strong>Bitcoin Dominantie (BTC.D)</strong><span>Laden...</span></div>
+                <div id="ethDominanceTrend" class="indicator loading" data-stars="2" title="Ethereum Dominantie (ETH.D). Stijgend is vaak altcoin-positief."><strong>Ethereum Dominantie (ETH.D)</strong><span>Laden...</span></div>
+                <div id="altcoinMarketCapTrend" class="indicator loading" data-stars="3" title="Altcoin Market Cap (Ex-BTC). Stijgend is altcoin-positief."><strong>Altcoin Market Cap (Ex-BTC)</strong><span>Laden...</span></div>
+                <div id="ethBtcRatioTrend" class="indicator loading" data-stars="3" title="ETH/BTC Ratio Trend. Stijgend is ETH/altcoin-positief tov BTC."><strong>ETH/BTC Ratio Trend</strong><span>Laden...</span></div>
+                <div class="api-key-note">Trends voor dominanties/ratio zichtbaar na 2e refresh.</div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2 title="Trends van belangrijke aandelenindices.">Traditionele Markten (Indices)</h2>
-            <div id="sp500Trend" class="indicator loading"><strong title="S&P 500 Index (via SPY ETF)">S&P 500 Trend</strong><span>Laden...</span></div>
-            <div id="nasdaq100Trend" class="indicator loading"><strong title="Nasdaq 100 Index (via QQQ ETF)">Nasdaq 100 Trend</strong><span>Laden...</span></div>
-            <div id="russell2000Trend" class="indicator loading"><strong title="Russell 2000 Index (via IWM ETF): Small-cap aandelen. Stijgend is positief.">Russell 2000 (IWM ETF)</strong><span>Laden...</span></div>
-            <div class="api-key-note">Indices (ETF's): Finnhub/FMP API Key.</div>
+        <div class="card collapsible">
+            <h2 class="collapsible-trigger" title="Trends van belangrijke aandelenindices.">Traditionele Markten (Indices)</h2>
+            <div class="collapsible-content">
+                <div id="sp500Trend" class="indicator loading" data-stars="2" title="S&P 500 Index (via SPY ETF)"><strong>S&P 500 Trend</strong><span>Laden...</span></div>
+                <div id="nasdaq100Trend" class="indicator loading" data-stars="2" title="Nasdaq 100 Index (via QQQ ETF)"><strong>Nasdaq 100 Trend</strong><span>Laden...</span></div>
+                <div id="russell2000Trend" class="indicator loading" data-stars="1" title="Russell 2000 Index (via IWM ETF): Small-cap aandelen. Stijgend is positief."><strong>Russell 2000 (IWM ETF)</strong><span>Laden...</span></div>
+                <div class="api-key-note">Indices (ETF's): Finnhub/FMP API Key.</div>
+            </div>
         </div>
     </div>
 
@@ -137,6 +183,8 @@
         <p id="generalMarketText" class="status-text">Laden...</p>
         <div class="factors-title">Belangrijkste Factoren (Max. 3 Positief / 3 Negatief):</div>
         <ul id="generalMarketFactors" class="factors-list"><li>Laden...</li></ul>
+        <div class="strategy-hint-title">Strategie Hint</div>
+        <p id="generalMarketStrategy" class="strategy-hint-text">Analyse wordt geladen...</p>
     </div>
     <div class="sub-conditions-grid">
         <div id="cryptoMarketCondition" class="condition-card condition-neutral sub-condition-card">
@@ -148,62 +196,68 @@
                 <strong title="Geeft aan of het sentiment meer richting Bitcoin of altcoins neigt.">Bitcoin vs. Altcoin Sentiment</strong>
                 <span>Laden...</span>
             </div>
+            <div class="strategy-hint-title">Crypto Strategie Hint</div>
+            <p id="cryptoMarketStrategy" class="strategy-hint-text">Analyse wordt geladen...</p>
         </div>
         <div id="stockMarketCondition" class="condition-card condition-neutral sub-condition-card">
             <h2 title="Specifieke analyse voor de aandelenmarkt.">Aandelen Marktconditie</h2>
             <p id="stockMarketText" class="status-text">Laden...</p>
             <div class="factors-title">Belangrijkste Aandelen Factoren:</div>
             <ul id="stockMarketFactors" class="factors-list"><li>Laden...</li></ul>
+            <div class="strategy-hint-title">Aandelen Strategie Hint</div>
+            <p id="stockMarketStrategy" class="strategy-hint-text">Analyse wordt geladen...</p>
         </div>
     </div>
 
-    <div class="tradingview-container">
-        <h2>TradingView Grafiek</h2>
-        <div id="tradingview-widget-placeholder">
-            <!-- TradingView Widget BEGIN -->
-            <div class="tradingview-widget-container" style="height:100%;width:100%">
-              <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-              <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-              {
-              "autosize": true,
-              "symbol": "NASDAQ:AAPL",
-              "interval": "D",
-              "timezone": "Europe/Amsterdam",
-              "theme": "light",
-              "style": "1",
-              "locale": "en",
-              "allow_symbol_change": true,
-              "watchlist": [
-                "BINANCE:BTCUSDT",
-                "BINANCE:SOLBTC",
-                "BINANCE:ETHUSD",
-                "BINANCE:ETHBTC",
-                "COINBASE:SOLUSD",
-                "SP:SPX",
-                "MIL:VUAA",
-                "CRYPTOCAP:OTHERS",
-                "CRYPTOCAP:BTC.D"
-              ],
-              "hotlist": true,
-              "studies": [
-                "STD;RSI",
-                "STD;Stochastic_RSI"
-              ],
-              "support_host": "https://www.tradingview.com"
-            }
-              </script>
+    <div class="tradingview-container card collapsible"> <!-- TradingView ook inklapbaar gemaakt -->
+        <h2 class="collapsible-trigger">TradingView Grafiek</h2>
+        <div class="collapsible-content">
+            <div id="tradingview-widget-placeholder">
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                  <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+                  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
+                  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                  {
+                  "autosize": true,
+                  "symbol": "NASDAQ:AAPL",
+                  "interval": "D",
+                  "timezone": "Europe/Amsterdam",
+                  "theme": "light",
+                  "style": "1",
+                  "locale": "en",
+                  "allow_symbol_change": true,
+                  "watchlist": [
+                    "BINANCE:BTCUSDT",
+                    "BINANCE:SOLBTC",
+                    "BINANCE:ETHUSD",
+                    "BINANCE:ETHBTC",
+                    "COINBASE:SOLUSD",
+                    "SP:SPX",
+                    "MIL:VUAA",
+                    "CRYPTOCAP:OTHERS",
+                    "CRYPTOCAP:BTC.D"
+                  ],
+                  "hotlist": true,
+                  "studies": [
+                    "STD;RSI",
+                    "STD;Stochastic_RSI"
+                  ],
+                  "support_host": "https://www.tradingview.com"
+                }
+                  </script>
+                </div>
+                <!-- TradingView Widget END -->
             </div>
-            <!-- TradingView Widget END -->
         </div>
     </div>
 
 <script>
     // ---- API KEYS (ZEER BELANGRIJK: VUL DEZE IN!) ----
     console.log("Script gestart. API Keys initialiseren...");
-    const FRED_API_KEY = '6eb928143eef77787366d5af41104d3e'; // Vervang '' met je FRED key
-    const FINNHUB_API_KEY = 'd106impr01qhkqr86m9gd106impr01qhkqr86ma0'; // Vervang '' met je Finnhub key
-    const FMP_API_KEY = 'Xpob3mGH7hEF2MT39Ev96ismedWfeXGT';   // Vervang '' met je FMP key
+    const FRED_API_KEY = '6eb928143eef77787366d5af41104d3e'; 
+    const FINNHUB_API_KEY = 'd106impr01qhkqr86m9gd106impr01qhkqr86ma0'; 
+    const FMP_API_KEY = 'Xpob3mGH7hEF2MT39Ev96ismedWfeXGT';   
 
     console.log("FRED Key:", FRED_API_KEY ? "Ingevuld" : "LEEG!");
     console.log("Finnhub Key:", FINNHUB_API_KEY ? "Ingevuld" : "LEEG!");
@@ -213,7 +267,7 @@
     let previousBtcDom = null, previousEthDom = null, previousAltCap = null, previousEthBtcRatio = null;
 
     // ---- Helper Functies ----
-    function setIndicator(elementId, title, detail, colorClass, error = null) {
+    function setIndicator(elementId, title, detail, colorClass, error = null, actionHint = null) {
         const element = document.getElementById(elementId);
         if (!element) { console.error("Element niet gevonden voor setIndicator:", elementId); return; }
         
@@ -222,25 +276,54 @@
         
         const strongElement = element.querySelector('strong') || document.createElement('strong');
         strongElement.textContent = title;
-        // Behoud bestaande tooltip op strong als die er is, anders verwijder
-        if(element.title && !strongElement.title) strongElement.title = element.title; 
-        else if (!element.title && strongElement.title) strongElement.removeAttribute('title');
+        
+        // Sterren toevoegen
+        const stars = element.dataset.stars;
+        if (stars) {
+            let starHTML = ' <span class="stars">';
+            for (let i = 0; i < 3; i++) {
+                starHTML += i < parseInt(stars) ? '★' : '<span class="dimmed">☆</span>';
+            }
+            starHTML += '</span>';
+            strongElement.innerHTML = title + starHTML; // Pas op, dit overschrijft eventuele bestaande HTML in strong, maar voor tekst + sterren is het ok.
+        }
 
 
-        const spanElement = element.querySelector('span:not(.error)') || document.createElement('span');
+        const spanElement = element.querySelector('span:not(.error):not(.action-hint)') || document.createElement('span');
         spanElement.textContent = detail;
         
+        // Verwijder bestaande elementen behalve de strong-tag voor de tooltip
+        // en de action-hint als die al bestaat
+        let currentStrong = element.querySelector('strong');
+        let currentActionHint = element.querySelector('.action-hint');
         element.innerHTML = ''; 
-        element.appendChild(strongElement);
+        if(currentStrong) element.appendChild(strongElement); // Gebruik de bijgewerkte strongElement
+        else element.appendChild(strongElement);
+
         element.appendChild(spanElement);
+
+        if (currentActionHint) element.appendChild(currentActionHint); // Voeg oude hint weer toe als die er was
+
+        // Actiehint afhandelen
+        let hintElement = element.querySelector('.action-hint');
+        if (actionHint) {
+            if (!hintElement) {
+                hintElement = document.createElement('span');
+                hintElement.className = 'action-hint';
+                element.appendChild(hintElement);
+            }
+            hintElement.textContent = actionHint;
+        } else if (hintElement) {
+            // hintElement.remove(); // Verwijder als er geen nieuwe hint is en er een oude was (optioneel)
+        }
         
         const oldErrorSpan = element.querySelector('span.error');
-        if (oldErrorSpan) oldErrorSpan.remove(); // Verwijder expliciet
+        if (oldErrorSpan) oldErrorSpan.remove(); 
         
         if (error) {
             const errorSpan = document.createElement('span');
             errorSpan.className = 'error'; 
-            errorSpan.textContent = error; // Gebruik de error string direct
+            errorSpan.textContent = error; 
             element.appendChild(errorSpan);
         }
     }
@@ -264,16 +347,32 @@
             if (!response.ok) {
                 let errorText = `Status: ${response.status}`;
                 try { 
-                    const errorBody = await response.text();
-                    errorText = errorBody.length > 200 ? errorBody.substring(0,200) + "..." : errorBody;
+                    const errorBody = await response.text(); // Probeer altijd text te lezen voor details
+                    errorText = `Status ${response.status}: ${errorBody.substring(0,200)}`;
+                     if (errorBody.length > 200) errorText += "...";
                 } catch (e) { console.warn("Kon error response body niet lezen:", e); }
-                console.error(`API error! URL: ${url.substring(0,100)}. Status: ${response.status}. Response: ${errorText}`);
-                throw new Error(`API Fout: ${response.status}`);
+                console.error(`API error! URL: ${url.substring(0,100)}. Details: ${errorText}`);
+                throw new Error(`API Fout: ${errorText}`); // Gooi de meer gedetailleerde error
             }
             let responseData;
-            if (parser === 'json') responseData = await response.json();
-            else if (parser === 'text') responseData = await response.text();
-            else responseData = response; 
+            // Voor allorigins.win/raw?url=... komt de data als text, zelfs als het JSON is.
+            // We moeten het dan handmatig parsen.
+            if (url.includes('api.allorigins.win/raw')) {
+                const textData = await response.text();
+                try {
+                    responseData = JSON.parse(textData);
+                } catch (e) {
+                    console.error("Failed to parse JSON from proxy for URL:", url, e);
+                    console.error("Proxy response text:", textData.substring(0,500)); // Log deel van de response
+                    throw new Error("Proxy JSON Parse Fout");
+                }
+            } else if (parser === 'json') {
+                 responseData = await response.json();
+            } else if (parser === 'text') {
+                 responseData = await response.text();
+            } else {
+                 responseData = response; 
+            }
             apiCache.set(url, { timestamp: now, data: responseData });
             return responseData;
         } catch (error) {
@@ -282,18 +381,23 @@
         }
     }
 
-    function setMarketConditionCard(cardId, textId, factorsId, scorePercentage, conditionText, positiveFactors, negativeFactors, numSignals) {
+    function setMarketConditionCard(cardId, textId, factorsId, strategyId, scorePercentage, conditionText, positiveFactors, negativeFactors, numSignals, strategyHint) {
         const cardElement = document.getElementById(cardId);
         const textElement = document.getElementById(textId);
         const factorsElement = document.getElementById(factorsId);
-        if (!cardElement || !textElement || !factorsElement) { console.error("Conditiekaart element niet gevonden:", cardId); return; }
+        const strategyElement = document.getElementById(strategyId);
+
+        if (!cardElement || !textElement || !factorsElement || !strategyElement) { console.error("Conditiekaart element (of strategie) niet gevonden:", cardId); return; }
+        
         cardElement.classList.remove('very-positive', 'positive', 'negative', 'very-negative', 'condition-neutral', 'loading');
         if (conditionText.toLowerCase().includes("onvoldoende data") || conditionText.toLowerCase().includes("api key")) { cardElement.classList.add('condition-neutral'); }
         else if (scorePercentage > 55) cardElement.classList.add('very-positive'); else if (scorePercentage > 15) cardElement.classList.add('positive');
         else if (scorePercentage < -55) cardElement.classList.add('very-negative'); else if (scorePercentage < -15) cardElement.classList.add('negative');
         else cardElement.classList.add('condition-neutral');
+        
         textElement.textContent = conditionText;
         textElement.title = `Score: ${scorePercentage.toFixed(0)}% (${numSignals} signalen)`;
+        
         let factorsHTML = '';
         positiveFactors.slice(0, 3).forEach(factor => factorsHTML += `<li class="factor-positive" title="${factor.name}: ${factor.detailFull || factor.detail}">${factor.name}: ${factor.detail}</li>`);
         negativeFactors.slice(0, 3).forEach(factor => factorsHTML += `<li class="factor-negative" title="${factor.name}: ${factor.detailFull || factor.detail}">${factor.name}: ${factor.detail}</li>`);
@@ -304,32 +408,28 @@
         else if (totalFactors === 0 && numSignals > 0) { factorsHTML = `<li title="De meeste indicatoren geven een neutraal beeld, of heffen elkaar op.">Geen sterk positieve/negatieve factoren.</li>`; }
         else if (factorsHTML === '') { factorsHTML = '<li title="Wacht tot alle data is geladen, of controleer de API keys.">Analyse data wordt geladen...</li>'; }
         factorsElement.innerHTML = factorsHTML;
+
+        strategyElement.textContent = strategyHint || "Bepaal strategie o.b.v. conditie.";
     }
 
     // ---- Data Ophalingsfuncties ----
     async function fetchFredSeries(seriesId, elementName, title, positiveChangeIsGood = true, unit = "%", valueMultiplier = 1, higherIsBetterThreshold = null) {
         const defaultReturn = { value: null, colorClass: 'neutral', name: title, detail: 'Laden...', detailFull: 'Laden...', positiveChangeIsGood, change: null };
+        let actionHint = null;
+
         if (FRED_API_KEY === '' || !FRED_API_KEY) {
             setIndicator(elementName, title, 'Data Error', 'neutral', 'Koppel FRED API Key');
             return { ...defaultReturn, detail: 'API Key Mist', detailFull: 'FRED API Key niet geconfigureerd.' };
         }
         
-        // Originele FRED URL
         const fredUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&limit=2&sort_order=desc`;
-        
-        // URL voor de CORS proxy
-        // encodeURIComponent zorgt ervoor dat de fredUrl correct wordt meegegeven als query parameter aan de proxy
         const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fredUrl)}`;
-        
-        console.log("Fetching FRED via Proxy:", proxyUrl); // Log de URL die we daadwerkelijk fetchen
+        console.log("Fetching FRED via Proxy:", proxyUrl.substring(0,150) + (proxyUrl.length > 150 ? "..." : "") ); // Kortere log
 
         try {
-            // Gebruik de proxyUrl voor de fetch call
             const data = await fetchWithCache(proxyUrl); 
-            // Omdat allorigins.win/raw?url= de response body direct doorgeeft als JSON,
-            // en FRED direct JSON teruggeeft, zou de 'data' variabele hier de geparste JSON van FRED moeten zijn.
-
             const observations = data.observations;
+
             if (observations && observations.length > 0) {
                 const latestObs = observations[0];
                 if (latestObs.value === "." || isNaN(parseFloat(latestObs.value))) {
@@ -340,6 +440,7 @@
                 let previousValue = null; let change = null;
                 let trendText = `${latestValue.toFixed(2)}${unit}`; let colorClass = 'yellow';
                 let trendDescription = "Stabiel";
+
                 if (observations.length >= 2 && observations[1].value !== "." && !isNaN(parseFloat(observations[1].value))) {
                     previousValue = parseFloat(observations[1].value) * valueMultiplier; change = latestValue - previousValue;
                     const relChangeThreshold = 0.0005; 
@@ -349,6 +450,7 @@
                         colorClass = positiveChangeIsGood ? 'red' : 'green'; trendDescription = "Dalend";
                     }
                 }
+
                 if (higherIsBetterThreshold !== null) {
                     const thresholdOffset = unit === "%" ? 0.2 : 1.5;
                     if (latestValue > higherIsBetterThreshold + thresholdOffset ) { 
@@ -359,24 +461,36 @@
                          colorClass = 'yellow'; trendDescription = `Rond ${higherIsBetterThreshold}`;
                     }
                 }
+                
+                // Voorbeeld van actionHint toevoegen
+                if (title.includes("M2") && colorClass === "green") actionHint = "Meer liquiditeit, gunstig voor risico-activa.";
+                else if (title.includes("Rente") && colorClass === "green") actionHint = "Lagere rente, positief voor groei/aandelen.";
+                else if (title.includes("Yield Curve") && colorClass === "red") actionHint = "Inverse curve, recessie-risico. Wees voorzichtig.";
+
+
                 let fullDetailText = `${trendText} (${trendDescription})`;
-                setIndicator(elementName, title, fullDetailText, colorClass);
+                setIndicator(elementName, title, fullDetailText, colorClass, null, actionHint);
                 return { value: latestValue, colorClass, name: title, detail: trendText.split('(')[0].trim(), detailFull: fullDetailText, positiveChangeIsGood, change };
             } else { 
                 setIndicator(elementName, title, 'Geen data (FRED)', 'neutral', 'Geen observaties van FRED.'); 
                 return { ...defaultReturn, detail: 'Geen data (FRED)', detailFull:'Geen observaties van FRED. Mogelijk 404 via proxy.' };
             }
         } catch (error) {
-            let errMsg = error.message && error.message.includes("API Fout:") ? error.message : "Failed to fetch (FRED via Proxy)";
-            if (error.message && error.message.includes("404")) { // Specifieke check voor 404
-                errMsg = "FRED API 404 (Proxy): Resource niet gevonden.";
+            let errMsg = error.message || "Failed to fetch (FRED via Proxy)";
+             if (errMsg.includes("API Fout: Status 404") || (error.message && error.message.includes("Not Found"))) {
+                errMsg = `FRED API 404: ${seriesId} niet gevonden.`;
+            } else if (errMsg.includes("Proxy JSON Parse Fout")) {
+                errMsg = "Proxy kon FRED response niet parsen. Check console.";
             }
-            console.error("Error in fetchFredSeries (via Proxy):", error);
+            console.error(`Error in fetchFredSeries (via Proxy) for ${seriesId}:`, error);
             setIndicator(elementName, title, 'Data Error', 'neutral', errMsg);
             return { ...defaultReturn, detail: 'Data Error', detailFull: errMsg };
         }
     }
     
+    // ... (Rest van de fetchFmpQuote, fetchFinnhubQuote, fetchCryptoFearGreed, fetchCryptoPrice, fetchCoinGeckoGlobalData, calculateEthBtcRatio komen HIER) ...
+    // ... (Deze functies blijven zoals ze waren in je vorige werkende versie) ...
+
     async function fetchFmpQuote(symbol, elementName, title, positiveChangeIsGood = true, isIndexType = true) {
         const defaultReturn = { value: null, changePercent: null, colorClass: 'neutral', name: title, detail: 'Laden...', detailFull: 'Laden...', positiveChangeIsGood };
         if (FMP_API_KEY === '' || !FMP_API_KEY) {
@@ -585,6 +699,7 @@
         }
     }
 
+
     function analyzeAndScore(results, relevantKeysAndWeights) {
         let score = 0; let totalWeightApplied = 0;
         let positiveFactors = []; let negativeFactors = []; let numValidSignals = 0;
@@ -635,26 +750,54 @@
             btcPriceTrend: 0.5, ethPriceTrend: 0.5 
         };
         const analysis = analyzeAndScore(results, weights); let conditionText = "Neutraal / Gemengd";
+        let strategyHint = "Markt is gemengd. Wees selectief, focus op sterke S/R niveaus.";
+
         const minSignalsForFullAnalysis = 10; 
         const anyKeyMissing = FRED_API_KEY === '' || FINNHUB_API_KEY === '' || FMP_API_KEY === '';
-        if (analysis.numSignals < minSignalsForFullAnalysis && anyKeyMissing ) { conditionText = "API Key(s) Mist voor Volledige Analyse"; }
-        else if (analysis.numSignals < 5) { conditionText = "Onvoldoende Data voor Analyse"; } 
-        else if (analysis.percentageScore > 55) conditionText = "Zeer Positief"; else if (analysis.percentageScore > 15) conditionText = "Positief";
-        else if (analysis.percentageScore < -55) conditionText = "Zeer Negatief"; else if (analysis.percentageScore < -15) conditionText = "Negatief";
-        setMarketConditionCard('generalMarketCondition', 'generalMarketText', 'generalMarketFactors', analysis.percentageScore, conditionText, analysis.positiveFactors, analysis.negativeFactors, analysis.numSignals);
+        
+        if (analysis.numSignals < minSignalsForFullAnalysis && anyKeyMissing ) { 
+            conditionText = "API Key(s) Mist voor Volledige Analyse"; 
+            strategyHint = "Configureer alle API keys voor volledige analyse.";
+        } else if (analysis.numSignals < 5) { 
+            conditionText = "Onvoldoende Data voor Analyse"; 
+            strategyHint = "Wacht op meer data of controleer API verbindingen.";
+        } else if (analysis.percentageScore > 55) {
+            conditionText = "Zeer Positief"; strategyHint = "Marktcondities zijn zeer gunstig. Overweeg long posities op sterke trends.";
+        } else if (analysis.percentageScore > 15) {
+            conditionText = "Positief"; strategyHint = "Marktcondities zijn positief. Zoek naar long setups, let op confirmatie.";
+        } else if (analysis.percentageScore < -55) {
+            conditionText = "Zeer Negatief"; strategyHint = "Marktcondities zijn zeer ongunstig. Overweeg short posities of cash aanhouden.";
+        } else if (analysis.percentageScore < -15) {
+            conditionText = "Negatief"; strategyHint = "Marktcondities zijn negatief. Wees voorzichtig, zoek naar short setups of blijf aan de zijlijn.";
+        }
+        setMarketConditionCard('generalMarketCondition', 'generalMarketText', 'generalMarketFactors', 'generalMarketStrategy', analysis.percentageScore, conditionText, analysis.positiveFactors, analysis.negativeFactors, analysis.numSignals, strategyHint);
     }
 
     function updateCryptoMarketCondition(results) {
         const cryptoWeights = {
             cryptoFearGreed: 1.5, btcPriceTrend: 1.2, ethPriceTrend: 1.2,
             altcoinMarketCapTrend: 1
+            // btcDominanceTrend, ethDominanceTrend, ethBtcRatioTrend wegen mee via bitcoinAltcoinSentiment
         };
-        const analysis = analyzeAndScore(results, cryptoWeights); let conditionText = "Crypto Neutraal";
-        if (analysis.numSignals < 3) { conditionText = "Crypto Onvoldoende Data"; } 
-        else if (analysis.percentageScore > 55) conditionText = "Crypto Zeer Bullish"; else if (analysis.percentageScore > 15) conditionText = "Crypto Bullish";
-        else if (analysis.percentageScore < -55) conditionText = "Crypto Zeer Bearish"; else if (analysis.percentageScore < -15) conditionText = "Crypto Bearish";
-        setMarketConditionCard('cryptoMarketCondition', 'cryptoMarketText', 'cryptoMarketFactors', analysis.percentageScore, conditionText, analysis.positiveFactors, analysis.negativeFactors, analysis.numSignals);
+        const analysis = analyzeAndScore(results, cryptoWeights); 
+        let conditionText = "Crypto Neutraal";
+        let strategyHint = "Crypto markt neutraal. Zoek naar specifieke altcoin/BTC kansen of duidelijke breakouts.";
+
+        if (analysis.numSignals < 3) { 
+            conditionText = "Crypto Onvoldoende Data"; 
+            strategyHint = "Onvoldoende data voor crypto analyse. Wacht op meer signalen.";
+        } else if (analysis.percentageScore > 55) {
+            conditionText = "Crypto Zeer Bullish"; strategyHint = "Crypto zeer bullish! Focus op long posities, vooral altcoins als sentiment meezit.";
+        } else if (analysis.percentageScore > 15) {
+            conditionText = "Crypto Bullish"; strategyHint = "Crypto bullish. Zoek naar dips om in te stappen of breakouts.";
+        } else if (analysis.percentageScore < -55) {
+            conditionText = "Crypto Zeer Bearish"; strategyHint = "Crypto zeer bearish. Wees extreem voorzichtig, overweeg shorts of blijf uit de markt.";
+        } else if (analysis.percentageScore < -15) {
+            conditionText = "Crypto Bearish"; strategyHint = "Crypto bearish. Wees voorzichtig met longs. Shorts op zwakte overwegen.";
+        }
+        setMarketConditionCard('cryptoMarketCondition', 'cryptoMarketText', 'cryptoMarketFactors', 'cryptoMarketStrategy', analysis.percentageScore, conditionText, analysis.positiveFactors, analysis.negativeFactors, analysis.numSignals, strategyHint);
         
+        // Bitcoin vs Altcoin Sentiment blijft zoals het was
         let btcAltScore = 0; let btcAltDetailParts = [];
         if (results.btcDominanceTrend && results.btcDominanceTrend.colorClass === 'green') { btcAltScore++; btcAltDetailParts.push("BTC.D↓");}
         else if (results.btcDominanceTrend && results.btcDominanceTrend.colorClass === 'red') { btcAltScore--; btcAltDetailParts.push("BTC.D↑");}
@@ -666,12 +809,12 @@
         else if (results.ethBtcRatioTrend && results.ethBtcRatioTrend.colorClass === 'red') { btcAltScore--; btcAltDetailParts.push("ETH/BTC↓");}
         
         let btcAltText = "Neutraal"; let btcAltColor = "yellow";
-        const allApisConfigured = FRED_API_KEY && FINNHUB_API_KEY && FMP_API_KEY;
-        if (btcAltDetailParts.length < 2 && allApisConfigured) { 
+        const allApisConfigured = FRED_API_KEY && FINNHUB_API_KEY && FMP_API_KEY; // Check of keys er zijn
+        if (btcAltDetailParts.length < 2 && allApisConfigured && (previousBtcDom !== null && previousAltCap !== null && previousEthBtcRatio !== null )) { /* Trends moeten eerst geladen zijn voor een goede check */
             btcAltText = "Onvoldoende Data"; btcAltColor = "neutral";
         } else if (btcAltDetailParts.length < 1 && !allApisConfigured) {
              btcAltText = "API Keys?"; btcAltColor = "neutral";
-        } else if (btcAltDetailParts.length < 1 && allApisConfigured) { // Nog geen data voor trends
+        } else if (previousBtcDom === null || previousAltCap === null || previousEthBtcRatio === null) { 
              btcAltText = "Initieel..."; btcAltColor = "neutral"; 
         }
         else if (btcAltScore >= 2) { btcAltText = "Altcoin Gunstig"; btcAltColor = "green"; }
@@ -688,14 +831,28 @@
             ismPmiTrend: 1.2, bondSpreadsTrend: 1, interest10yrTrend: 1, retailSalesTrend: 0.8, 
             unemploymentTrend: 0.5, ppiTrend: 0.7, breakeven10yrTrend: 0.7, copperTrend: 0.6
         };
-        const analysis = analyzeAndScore(results, weights); let conditionText = "Aandelen Neutraal";
+        const analysis = analyzeAndScore(results, weights); 
+        let conditionText = "Aandelen Neutraal";
+        let strategyHint = "Aandelenmarkt neutraal. Focus op sectorrotatie of individuele stock picking.";
+
         const minSignalsForStocks = 6; 
-        const relevantKeysMissing = FRED_API_KEY === '' || FINNHUB_API_KEY === ''; // FMP is mainly DXY
-         if (analysis.numSignals < minSignalsForStocks && relevantKeysMissing ) { conditionText = "API Key(s) Mist voor Analyse"; }
-        else if (analysis.numSignals < 4) { conditionText = "Aandelen Onvoldoende Data"; } 
-        else if (analysis.percentageScore > 55) conditionText = "Aandelen Zeer Bullish"; else if (analysis.percentageScore > 15) conditionText = "Aandelen Bullish";
-        else if (analysis.percentageScore < -55) conditionText = "Aandelen Zeer Bearish"; else if (analysis.percentageScore < -15) conditionText = "Aandelen Bearish";
-        setMarketConditionCard('stockMarketCondition', 'stockMarketText', 'stockMarketFactors', analysis.percentageScore, conditionText, analysis.positiveFactors, analysis.negativeFactors, analysis.numSignals);
+        const relevantKeysMissing = FRED_API_KEY === '' || FINNHUB_API_KEY === ''; 
+         if (analysis.numSignals < minSignalsForStocks && relevantKeysMissing ) { 
+            conditionText = "API Key(s) Mist voor Analyse";
+            strategyHint = "Configureer API keys voor volledige aandelenanalyse."; 
+        } else if (analysis.numSignals < 4) { 
+            conditionText = "Aandelen Onvoldoende Data";
+            strategyHint = "Onvoldoende data voor aandelenanalyse."; 
+        } else if (analysis.percentageScore > 55) {
+            conditionText = "Aandelen Zeer Bullish"; strategyHint = "Aandelen zeer bullish. Overweeg long posities in sterke sectoren/aandelen.";
+        } else if (analysis.percentageScore > 15) {
+            conditionText = "Aandelen Bullish"; strategyHint = "Aandelen bullish. Goed instapmoment voor longs op sterke namen.";
+        } else if (analysis.percentageScore < -55) {
+            conditionText = "Aandelen Zeer Bearish"; strategyHint = "Aandelen zeer bearish. Overweeg short posities of cash. Wees defensief.";
+        } else if (analysis.percentageScore < -15) {
+            conditionText = "Aandelen Bearish"; strategyHint = "Aandelen bearish. Voorzichtig met longs. Overweeg defensieve posities.";
+        }
+        setMarketConditionCard('stockMarketCondition', 'stockMarketText', 'stockMarketFactors', 'stockMarketStrategy', analysis.percentageScore, conditionText, analysis.positiveFactors, analysis.negativeFactors, analysis.numSignals, strategyHint);
     }
 
     async function loadDashboardData() {
@@ -742,6 +899,7 @@
         });
 
         console.log("Verwerken van afgeleide indicatoren (Yield Curve, Fed Stance)...");
+        // Yield Curve (blijft hetzelfde)
         if (results.interest10yrTrend && results.interest10yrTrend.value !== null && results.interest10yrTrend.colorClass !== 'neutral' &&
             results.interest2yrTrend && results.interest2yrTrend.value !== null && results.interest2yrTrend.colorClass !== 'neutral') {
             const i10yr = results.interest10yrTrend; const i2yr = results.interest2yrTrend;
@@ -768,23 +926,31 @@
             results.yieldCurve = {value:null, colorClass:'neutral', name:"Yield Curve", detail:"Rentedata mist", detailFull:"Rentedata 10j/2j mist voor Yield Curve berekening."};
         }
 
-        if (results.interest10yrTrend && results.interest10yrTrend.colorClass && results.interest10yrTrend.colorClass !== 'neutral' && results.interest10yrTrend.detailFull) {
-            let fedColor = results.interest10yrTrend.colorClass; 
+        // Fed Stance (blijft hetzelfde)
+        console.log("Afleiden Fed Stance...");
+        const i10yrData = results.interest10yrTrend;
+        if (i10yrData && i10yrData.value !== null && i10yrData.change !== null && i10yrData.colorClass !== 'neutral' && !i10yrData.detail.toLowerCase().includes('api key')) {
+            let fedColor = 'yellow';
             let fedText = "Neutraal";
-            const detailFullLower = results.interest10yrTrend.detailFull.toLowerCase();
-            if (detailFullLower.includes("stijgend")) { 
-                fedText = "Verkrappend (Hawkish)"; fedColor = 'red'; 
-            } else if (detailFullLower.includes("dalend")) { 
-                fedText = "Verruimend (Dovish)"; fedColor = 'green'; 
-            } else { fedColor = 'yellow'; }
+            if (i10yrData.colorClass === 'red') { 
+                fedText = "Verkrappend (Hawkish)"; fedColor = 'red';
+            } else if (i10yrData.colorClass === 'green') { 
+                fedText = "Verruimend (Dovish)"; fedColor = 'green';
+            } else { 
+                fedText = "Neutraal / Stabiel"; fedColor = 'yellow';
+            }
             setIndicator('fedStance', 'Fed Beleid Stance', fedText, fedColor);
-            results.fedStance = { value: null, colorClass: fedColor, name: "Fed Beleid", detail: fedText, detailFull: fedText, positiveChangeIsGood: (fedColor==='green') };
+            results.fedStance = { value: i10yrData.change, colorClass: fedColor, name: "Fed Beleid", detail: fedText, detailFull: fedText, positiveChangeIsGood: (fedColor === 'green') };
         } else {
-            let errorMsg = "10j data incompleet";
+            let errorMsg = "10j Rentedata incompleet voor Fed Stance.";
             if (!FRED_API_KEY) errorMsg = "Koppel FRED API Key";
-            setIndicator('fedStance', 'Fed Beleid Stance', 'Rentedata mist', 'neutral', errorMsg);
-            results.fedStance = {value:null, colorClass:'neutral', name:"Fed Beleid", detail:"Rentedata mist", detailFull:"Rentedata 10j mist voor Fed Stance afleiding."};
+            else if (i10yrData && i10yrData.detail.toLowerCase().includes('api key')) errorMsg = "Koppel FRED API Key";
+            else if (i10yrData && i10yrData.detail.toLowerCase().includes('error')) errorMsg = i10yrData.detailFull || "Data Error 10j Rente";
+
+            setIndicator('fedStance', 'Fed Beleid Stance', 'Data onbeschikbaar', 'neutral', errorMsg);
+            results.fedStance = { value: null, colorClass: 'neutral', name: "Fed Beleid", detail: "Data onbeschikbaar", detailFull: errorMsg };
         }
+
 
         console.log("Ophalen CoinGecko global data...");
         const cgData = await fetchCoinGeckoGlobalData();
@@ -801,6 +967,49 @@
         document.getElementById('lastUpdated').textContent = `Laatst bijgewerkt: ${formatDate(new Date())}`;
         console.log("loadDashboardData voltooid.");
     }
+
+    // --- START Inklapbare sectie JavaScript ---
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.collapsible-trigger').forEach(trigger => {
+            trigger.style.cursor = 'pointer';
+            const content = trigger.nextElementSibling; // .collapsible-content
+
+            // Initieel collaboren, behalve de eerste paar kaarten misschien
+            // Voor nu: collaboreer alles behalve de eerste (Macro)
+            // if (!trigger.closest('.card').querySelector('#m2Trend')) { // Simpele check voor de eerste kaart
+            //    trigger.parentElement.classList.add('collapsed');
+            //    if (content) content.style.display = 'none';
+            // }
+
+
+            trigger.addEventListener('click', function() {
+                this.parentElement.classList.toggle('collapsed');
+                if (content) {
+                    if (content.style.display === 'none' || content.style.display === '') {
+                        content.style.display = 'block'; // Of de originele display waarde als je complexere layouts hebt
+                    } else {
+                        content.style.display = 'none';
+                    }
+                }
+            });
+        });
+        // Optioneel: Initieel collaboren van alle secties behalve de eerste
+         const allCards = document.querySelectorAll('.grid-container .card, .tradingview-container.card');
+         allCards.forEach((card, index) => {
+            if (index > 0) { // Collaboreer alles behalve de eerste kaart in de grid
+                const trigger = card.querySelector('.collapsible-trigger');
+                const content = card.querySelector('.collapsible-content');
+                if (trigger && content) {
+                    card.classList.add('collapsed');
+                    content.style.display = 'none';
+                }
+            }
+         });
+
+
+    });
+    // --- EINDE Inklapbare sectie JavaScript ---
+
 
     console.log("Event listener voor window.onload wordt ingesteld.");
     window.onload = loadDashboardData;
