@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geavanceerd Swingtrade Dashboard v2.8</title>
+    <title>Geavanceerd Swingtrade Dashboard v2.9.1</title> 
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0;
@@ -17,10 +17,9 @@
         .card { background-color: #fff; border-radius: 8px; padding: 18px; box-shadow: 0 3px 5px rgba(0,0,0,0.05); }
         .card h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.2em; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; }
         
-        /* --- START Inklapbare sectie stijlen --- */
         .card .collapsible-trigger { cursor: pointer; position: relative; }
         .card .collapsible-trigger::after {
-            content: ' ▼'; /* Pijltje omlaag */
+            content: ' ▼'; 
             font-size: 0.7em;
             position: absolute;
             right: 0px;
@@ -29,26 +28,22 @@
             transition: transform 0.2s ease-in-out;
         }
         .card.collapsed .collapsible-trigger::after {
-            transform: translateY(-50%) rotate(-90deg); /* Pijltje links */
+            transform: translateY(-50%) rotate(-90deg); 
         }
-        .collapsible-content {
-            /* Standaard zichtbaar, JS handelt display:none af */
-        }
-        /* --- EINDE Inklapbare sectie stijlen --- */
+        .collapsible-content { display: block; /* Start zichtbaar, JS verbergt indien nodig */ }
+      
 
         .indicator { padding: 9px 11px; margin-bottom: 9px; border-radius: 5px; font-size: 0.9em; border: 1px solid transparent; }
         .indicator strong { display: block; margin-bottom: 3px; color: #111827; font-weight: 600; font-size:0.93em; }
-        /* --- START Sterrenscore stijlen --- */
         .indicator strong .stars {
             font-size: 0.9em;
             margin-left: 8px;
-            color: #ffd700; /* Goudkleur */
+            color: #ffd700; 
             letter-spacing: 1px;
         }
         .indicator strong .stars .dimmed {
             color: #ccc;
         }
-        /* --- EINDE Sterrenscore stijlen --- */
         .indicator span { font-size: 0.83em; color: #4b5563; }
         .indicator .action-hint { font-size: 0.75em; color: #555; display: block; margin-top: 4px; font-style: italic;}
 
@@ -77,10 +72,9 @@
         .condition-card .factors-list li:hover { background-color: rgba(0,0,0,0.05); }
         .factors-list .factor-positive::before { content: '🟢 '; font-size:0.75em; }
         .factors-list .factor-negative::before { content: '🔴 '; font-size:0.75em; }
-        /* --- START Strategie Hint Stijl --- */
         .condition-card .strategy-hint-title { font-size: 0.75em; margin-top:12px; margin-bottom:3px; text-transform: uppercase; opacity:0.85; font-weight:600;}
         .condition-card .strategy-hint-text { font-size: 0.85em; opacity: 0.95; font-style: italic; margin-bottom: 0;}
-        /* --- EINDE Strategie Hint Stijl --- */
+        
 
         .very-positive { background-color: #16a34a; } .positive { background-color: #22c55e; }
         .negative { background-color: #f97316; } .very-negative { background-color: #dc2626; }
@@ -99,22 +93,46 @@
         .error { color: #b91c1c; font-size: 0.75em; display: block; margin-top: 2px; font-weight:500; }
         .api-key-note { font-size:0.65em; color:#a1a1aa; margin-top:7px; text-align: right;}
 
-        .tradingview-container { margin-top: 15px; padding: 12px; background-color: #fff; border-radius: 8px; box-shadow: 0 3px 5px rgba(0,0,0,0.05); }
-        .tradingview-container h2 { margin-top: 0; margin-bottom: 12px; font-size: 1.2em; color: #374151; }
-        #tradingview-widget-placeholder { height: 550px; width: 100%;}
-        #tradingview-widget-placeholder > .tradingview-widget-container__widget { height: 100% !important; width: 100% !important; }
+        .chart-container { 
+             margin-top: 15px; padding: 12px; background-color: #fff; 
+             border-radius: 8px; box-shadow: 0 3px 5px rgba(0,0,0,0.05); 
+        }
+        .chart-container h2 { 
+            margin-top: 0; margin-bottom: 12px; font-size: 1.2em; color: #374151;
+        }
+        #dexscreener-widget-placeholder { 
+            position: relative; 
+            width: 100%; 
+            padding-bottom: 65%; 
+            height: 0; 
+            overflow: hidden;
+        }
+        #dexscreener-widget-placeholder iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .widget-copyright { 
+            font-size:0.7em; text-align:right; color:#aaa; padding-top:5px;
+        }
+        #tradingview-widget-placeholder { height: 550px; width: 100%;} 
+
     </style>
 </head>
 <body>
 
     <div class="dashboard-header">
-        <h1>Geavanceerd Swingtrade Dashboard v2.8</h1>
+        <h1>Geavanceerd Swingtrade Dashboard v2.9.1</h1>
         <p title="Alle data wordt periodiek ververst. Trends voor crypto dominantie/ratio's worden zichtbaar na de tweede data-ophaling.">
             Analyse van macro, sentiment & marktindicatoren. <span id="lastUpdated"></span>
         </p>
     </div>
 
     <div class="grid-container">
+        <!-- Macro Omgeving -->
         <div class="card collapsible">
             <h2 class="collapsible-trigger" title="Indicatoren die de algemene economische gezondheid en het beleid weerspiegelen.">Macro Omgeving</h2>
             <div class="collapsible-content">
@@ -133,6 +151,7 @@
             </div>
         </div>
 
+        <!-- Geldstroom & Globale Indicatoren -->
         <div class="card collapsible">
             <h2 class="collapsible-trigger" title="Indicatoren die de richting van kapitaalstromen en de status van globale activa weerspiegelen.">Geldstroom & Globale Indicatoren</h2>
             <div class="collapsible-content">
@@ -145,6 +164,7 @@
             </div>
         </div>
 
+        <!-- Markt Sentiment -->
         <div class="card collapsible">
             <h2 class="collapsible-trigger" title="Metingen van het algemene gevoel of de psychologie van investeerders.">Markt Sentiment</h2>
             <div class="collapsible-content">
@@ -154,6 +174,7 @@
             </div>
         </div>
 
+        <!-- Crypto Markt Intern -->
         <div class="card crypto-market-card collapsible">
             <h2 class="collapsible-trigger" title="Indicatoren specifiek voor de interne dynamiek van de cryptomarkt.">Crypto Markt Intern</h2>
             <div class="collapsible-content">
@@ -167,6 +188,7 @@
             </div>
         </div>
 
+        <!-- Traditionele Markten (Indices) -->
         <div class="card collapsible">
             <h2 class="collapsible-trigger" title="Trends van belangrijke aandelenindices.">Traditionele Markten (Indices)</h2>
             <div class="collapsible-content">
@@ -209,66 +231,82 @@
         </div>
     </div>
 
-<div class="dexscreener-container card collapsible">
-    <h2 class="collapsible-trigger">DEX Screener Grafiek: DTR/SOL</h2>
-    <div class="collapsible-content">
-        <div id="dexscreener-widget-placeholder" style="position: relative; width: 100%; padding-bottom: 75%;"> 
-            <iframe 
-                src="https://dexscreener.com/solana/FkqvTmDNgxgcdS7fPbZoQhPVuaYJPwSsP8mm4p7oNgf6?embed=1&info=0&theme=light"
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
-                allowfullscreen
-                title="DTR/SOL Chart via DEX Screener">
-            </iframe>
-        </div>
-        <div class="widget-copyright" style="font-size:0.7em; text-align:right; color:#aaa; padding-top:5px;">
-            Grafiek door <a href="https://dexscreener.com/solana/FkqvTmDNgxgcdS7fPbZoQhPVuaYJPwSsP8mm4p7oNgf6" target="_blank" rel="noopener nofollow">DEX Screener</a>
-        </div>
-    </div>
-</div>
-    
-<div class="tradingview-container card collapsible"> <!-- TradingView ook inklapbaar gemaakt -->
-    <h2 class="collapsible-trigger">TradingView Grafiek</h2>
-    <div class="collapsible-content">
-        <div id="tradingview-widget-placeholder">
-            <!-- TradingView Widget BEGIN -->
-            <div class="tradingview-widget-container" style="height:100%;width:100%">
-              <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-              <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-              {
-              // ... TradingView JSON configuratie ...
-              }
-              </script>
+    <div class="chart-container card collapsible">
+        <h2 class="collapsible-trigger">DEX Screener Grafiek: DTR/SOL</h2>
+        <div class="collapsible-content">
+            <div id="dexscreener-widget-placeholder"> 
+                <iframe 
+                    src="https://dexscreener.com/solana/FkqvTmDNgxgcdS7fPbZoQhPVuaYJPwSsP8mm4p7oNgf6?embed=1&info=0&theme=light"
+                    allowfullscreen
+                    title="DTR/SOL Chart via DEX Screener">
+                </iframe>
             </div>
-            <!-- TradingView Widget END -->
+            <div class="widget-copyright">
+                Grafiek door <a href="https://dexscreener.com/solana/FkqvTmDNgxgcdS7fPbZoQhPVuaYJPwSsP8mm4p7oNgf6" target="_blank" rel="noopener nofollow">DEX Screener</a>
+            </div>
         </div>
     </div>
-</div>
+    
+    <div class="chart-container card collapsible collapsed"> 
+        <h2 class="collapsible-trigger">TradingView Grafiek (BTCUSDT)</h2>
+        <div class="collapsible-content" style="display: none;"> 
+            <div id="tradingview-widget-placeholder">
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                  <div id="tradingview_c24c5" class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+                  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
+                  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                  {
+                      "autosize": true,
+                      "symbol": "BINANCE:BTCUSDT",
+                      "interval": "D",
+                      "timezone": "Europe/Amsterdam",
+                      "theme": "dark",
+                      "style": "1",
+                      "locale": "en",
+                      "withdateranges": true,
+                      "hide_side_toolbar": false,
+                      "allow_symbol_change": true,
+                      "watchlist": [
+                        "CRYPTOCAP:BTC.D",
+                        "BINANCE:ETHUSDT",
+                        "BINANCE:ETHBTC"
+                      ],
+                      "details": true,
+                      "hotlist": false, 
+                      "studies": [
+                        "STD;MA%1Cross",
+                        "STD;RSI",
+                        "STD;Stochastic_RSI"
+                      ],
+                      "support_host": "https://www.tradingview.com"
+                    }
+                  </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </div>
+    </div>
+
 <script>
-    // ---- API KEYS (ZEER BELANGRIJK: VUL DEZE IN!) ----
+    // ---- API KEYS ----
     console.log("Script gestart. API Keys initialiseren...");
     const FRED_API_KEY = '6eb928143eef77787366d5af41104d3e'; 
     const FINNHUB_API_KEY = 'd106impr01qhkqr86m9gd106impr01qhkqr86ma0'; 
     const FMP_API_KEY = 'Xpob3mGH7hEF2MT39Ev96ismedWfeXGT';   
 
-    console.log("FRED Key:", FRED_API_KEY ? "Ingevuld" : "LEEG!");
-    console.log("Finnhub Key:", FINNHUB_API_KEY ? "Ingevuld" : "LEEG!");
-    console.log("FMP Key:", FMP_API_KEY ? "Ingevuld" : "LEEG!");
-
-    // ---- GLOBALE VARIABELEN VOOR TRENDS ----
+    // ---- GLOBALE VARIABELEN ----
     let previousBtcDom = null, previousEthDom = null, previousAltCap = null, previousEthBtcRatio = null;
 
-    // ---- Helper Functies ----
+    // ---- HELPER FUNCTIES----
     function setIndicator(elementId, title, detail, colorClass, error = null, actionHint = null) {
         const element = document.getElementById(elementId);
-        if (!element) { console.error("Element niet gevonden voor setIndicator:", elementId); return; }
+        if (!element) { console.error("Element niet gevonden:", elementId); return; }
         
         element.classList.remove('loading', 'green', 'yellow', 'red', 'neutral');
         if (colorClass) element.classList.add(colorClass);
         
-        const strongElement = element.querySelector('strong') || document.createElement('strong');
-        strongElement.textContent = title;
-        
+        let strongContent = title;
         const stars = element.dataset.stars;
         if (stars) {
             let starHTML = ' <span class="stars">';
@@ -276,92 +314,59 @@
                 starHTML += i < parseInt(stars) ? '★' : '<span class="dimmed">☆</span>';
             }
             starHTML += '</span>';
-            strongElement.innerHTML = title + starHTML;
+            strongContent += starHTML;
         }
-
-        const spanElement = element.querySelector('span:not(.error):not(.action-hint)') || document.createElement('span');
-        spanElement.textContent = detail;
         
-        let currentStrong = element.querySelector('strong');
-        let currentActionHint = element.querySelector('.action-hint');
-        element.innerHTML = ''; 
-        if(currentStrong) element.appendChild(strongElement); 
-        else element.appendChild(strongElement);
-
-        element.appendChild(spanElement);
-
-        if (currentActionHint) element.appendChild(currentActionHint); 
-
-        let hintElement = element.querySelector('.action-hint');
+        let newHTML = `<strong>${strongContent}</strong><span>${detail}</span>`;
         if (actionHint) {
-            if (!hintElement) {
-                hintElement = document.createElement('span');
-                hintElement.className = 'action-hint';
-                element.appendChild(hintElement);
-            }
-            hintElement.textContent = actionHint;
-        } else if (hintElement) {
-            // hintElement.remove(); // Optioneel: verwijder oude hint als er geen nieuwe is
+            newHTML += `<span class="action-hint">${actionHint}</span>`;
         }
-        
-        const oldErrorSpan = element.querySelector('span.error');
-        if (oldErrorSpan) oldErrorSpan.remove(); 
-        
         if (error) {
-            const errorSpan = document.createElement('span');
-            errorSpan.className = 'error'; 
-            errorSpan.textContent = error; 
-            element.appendChild(errorSpan);
+            newHTML += `<span class="error">${error}</span>`;
         }
+        element.innerHTML = newHTML;
     }
+
     function formatDate(date) { return date.toLocaleString('nl-NL', { dateStyle: 'medium', timeStyle: 'short' }); }
     document.getElementById('lastUpdated').textContent = `Laatst bijgewerkt: ${formatDate(new Date())}`;
 
     const apiCache = new Map();
     const CACHE_DURATION = 5 * 60 * 1000; 
+
     async function fetchWithCache(url, options = {}, parser = 'json') {
         const now = Date.now();
-        if (apiCache.has(url)) {
-            const { timestamp, data } = apiCache.get(url);
-            if (now - timestamp < CACHE_DURATION) { 
-                console.log("Cache HIT for URL:", url.substring(0,120));
-                return data; 
-            }
+        if (apiCache.has(url) && (now - apiCache.get(url).timestamp < CACHE_DURATION)) {
+            console.log("Cache HIT:", url.substring(0,100));
+            return apiCache.get(url).data;
         }
-        console.log("Fetching URL (Cache MISS/EXPIRED):", url.substring(0,120));
+        console.log("Fetching:", url.substring(0,100));
         try {
             const response = await fetch(url, options);
             if (!response.ok) {
                 let errorText = `Status: ${response.status}`;
                 try { 
                     const errorBody = await response.text();
-                    errorText = `Status ${response.status}: ${errorBody.substring(0,200)}`;
-                     if (errorBody.length > 200) errorText += "...";
-                } catch (e) { console.warn("Kon error response body niet lezen:", e); }
+                    errorText = `Status ${response.status}: ${errorBody.substring(0,200)}` + (errorBody.length > 200 ? "..." : "");
+                } catch (e) { /* ignore */ }
                 console.error(`API error! URL: ${url.substring(0,100)}. Details: ${errorText}`);
                 throw new Error(`API Fout: ${errorText}`);
             }
             let responseData;
             if (url.includes('api.allorigins.win/raw')) {
                 const textData = await response.text();
-                try {
-                    responseData = JSON.parse(textData);
-                } catch (e) {
-                    console.error("Failed to parse JSON from proxy for URL:", url, e);
-                    console.error("Proxy response text:", textData.substring(0,500)); 
-                    throw new Error("Proxy JSON Parse Fout");
+                try { responseData = JSON.parse(textData); } 
+                catch (e) { 
+                    console.error("Proxy JSON Parse Fout:", url.substring(0,100), e, textData.substring(0,250)); 
+                    throw new Error("Proxy JSON Parse Fout"); 
                 }
-            } else if (parser === 'json') {
-                 responseData = await response.json();
-            } else if (parser === 'text') {
-                 responseData = await response.text();
-            } else {
-                 responseData = response; 
-            }
+            } else if (parser === 'json') { responseData = await response.json(); }
+            else if (parser === 'text') { responseData = await response.text(); }
+            else { responseData = response; }
+            
             apiCache.set(url, { timestamp: now, data: responseData });
             return responseData;
         } catch (error) {
-            console.error("fetchWithCache FAILED for ", url.substring(0,80), error);
+            console.error("fetchWithCache FAILED:", url.substring(0,80), error.message); // Log de message
             throw error; 
         }
     }
@@ -372,12 +377,16 @@
         const factorsElement = document.getElementById(factorsId);
         const strategyElement = document.getElementById(strategyId);
 
-        if (!cardElement || !textElement || !factorsElement || !strategyElement) { console.error("Conditiekaart element (of strategie) niet gevonden:", cardId); return; }
+        if (!cardElement || !textElement || !factorsElement || !strategyElement) { return; }
         
         cardElement.classList.remove('very-positive', 'positive', 'negative', 'very-negative', 'condition-neutral', 'loading');
-        if (conditionText.toLowerCase().includes("onvoldoende data") || conditionText.toLowerCase().includes("api key")) { cardElement.classList.add('condition-neutral'); }
-        else if (scorePercentage > 55) cardElement.classList.add('very-positive'); else if (scorePercentage > 15) cardElement.classList.add('positive');
-        else if (scorePercentage < -55) cardElement.classList.add('very-negative'); else if (scorePercentage < -15) cardElement.classList.add('negative');
+        const lowerConditionText = conditionText.toLowerCase();
+        if (lowerConditionText.includes("onvoldoende data") || lowerConditionText.includes("api key") || lowerConditionText.includes("laden")) { 
+            cardElement.classList.add('condition-neutral'); 
+        } else if (scorePercentage > 55) cardElement.classList.add('very-positive'); 
+        else if (scorePercentage > 15) cardElement.classList.add('positive');
+        else if (scorePercentage < -55) cardElement.classList.add('very-negative'); 
+        else if (scorePercentage < -15) cardElement.classList.add('negative');
         else cardElement.classList.add('condition-neutral');
         
         textElement.textContent = conditionText;
@@ -386,46 +395,42 @@
         let factorsHTML = '';
         positiveFactors.slice(0, 3).forEach(factor => factorsHTML += `<li class="factor-positive" title="${factor.name}: ${factor.detailFull || factor.detail}">${factor.name}: ${factor.detail}</li>`);
         negativeFactors.slice(0, 3).forEach(factor => factorsHTML += `<li class="factor-negative" title="${factor.name}: ${factor.detailFull || factor.detail}">${factor.name}: ${factor.detail}</li>`);
-        const totalFactors = positiveFactors.length + negativeFactors.length;
-        const anyKeyMissing = FRED_API_KEY === '' || FINNHUB_API_KEY === '' || FMP_API_KEY === '';
+        
+        const anyKeyMissing = !FRED_API_KEY || !FINNHUB_API_KEY || !FMP_API_KEY; // Simpelere check
         if (numSignals === 0 && anyKeyMissing) { factorsHTML = '<li title="Zonder API keys kan geen volledige analyse worden gemaakt.">API Key(s) niet geconfigureerd.</li>'; }
-        else if (numSignals < 3 && !anyKeyMissing) { factorsHTML = `<li title="Er zijn te weinig datapunten beschikbaar voor een betrouwbare lijst van factoren.">Onvoldoende data (${numSignals} signaal/en).</li>`; }
-        else if (totalFactors === 0 && numSignals > 0) { factorsHTML = `<li title="De meeste indicatoren geven een neutraal beeld, of heffen elkaar op.">Geen sterk positieve/negatieve factoren.</li>`; }
-        else if (factorsHTML === '') { factorsHTML = '<li title="Wacht tot alle data is geladen, of controleer de API keys.">Analyse data wordt geladen...</li>'; }
+        else if (numSignals < (cardId === 'cryptoMarketCondition' ? 2 : 3) && !anyKeyMissing && !lowerConditionText.includes("laden")) { 
+             factorsHTML = `<li title="Er zijn te weinig datapunten beschikbaar voor een betrouwbare lijst van factoren.">Onvoldoende data (${numSignals} signaal/en).</li>`; 
+        } else if (positiveFactors.length === 0 && negativeFactors.length === 0 && numSignals > 0 && !lowerConditionText.includes("laden")) { 
+            factorsHTML = `<li title="De meeste indicatoren geven een neutraal beeld, of heffen elkaar op.">Geen sterk positieve/negatieve factoren.</li>`; 
+        } else if (factorsHTML === '' && !lowerConditionText.includes("laden")) { 
+            factorsHTML = '<li title="Wacht tot alle data is geladen, of controleer de API keys.">Data analyse wordt verwerkt...</li>'; 
+        } else if (factorsHTML === '' && lowerConditionText.includes("laden")) {
+             factorsHTML = '<li>Laden...</li>';
+        }
         factorsElement.innerHTML = factorsHTML;
 
         strategyElement.textContent = strategyHint || "Bepaal strategie o.b.v. conditie en TA.";
     }
 
-    // ---- Data Ophalingsfuncties ----
+    // ---- DATA OPHALINGSFUNCTIES ----
     async function fetchFredSeries(seriesId, elementName, title, positiveChangeIsGood = true, unit = "%", valueMultiplier = 1, higherIsBetterThreshold = null) {
         const defaultReturn = { value: null, colorClass: 'neutral', name: title, detail: 'Laden...', detailFull: 'Laden...', positiveChangeIsGood, change: null };
         let actionHint = null;
-
-        if (FRED_API_KEY === '' || !FRED_API_KEY) {
-            setIndicator(elementName, title, 'Data Error', 'neutral', 'Koppel FRED API Key');
-            return { ...defaultReturn, detail: 'API Key Mist', detailFull: 'FRED API Key niet geconfigureerd.' };
-        }
-        
+        if (!FRED_API_KEY) { setIndicator(elementName, title, 'Data Error', 'neutral', 'Koppel FRED API Key'); return defaultReturn; }
         const fredUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&limit=2&sort_order=desc`;
         const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fredUrl)}`;
-        // console.log("Fetching FRED via Proxy:", proxyUrl.substring(0,150) + (proxyUrl.length > 150 ? "..." : "") );
-
         try {
             const data = await fetchWithCache(proxyUrl); 
             const observations = data.observations;
-
             if (observations && observations.length > 0) {
                 const latestObs = observations[0];
                 if (latestObs.value === "." || isNaN(parseFloat(latestObs.value))) {
-                     setIndicator(elementName, title, 'Data ongeldig (FRED)', 'neutral', 'Ongeldige waarde');
-                     return { ...defaultReturn, detail: 'Ongeldige data (FRED)', detailFull: 'Recente data van FRED is ongeldig.' };
+                     setIndicator(elementName, title, 'Data ongeldig (FRED)', 'neutral', 'Ongeldige waarde'); return defaultReturn;
                 }
                 const latestValue = parseFloat(latestObs.value) * valueMultiplier;
                 let previousValue = null; let change = null;
                 let trendText = `${latestValue.toFixed(2)}${unit}`; let colorClass = 'yellow';
                 let trendDescription = "Stabiel";
-
                 if (observations.length >= 2 && observations[1].value !== "." && !isNaN(parseFloat(observations[1].value))) {
                     previousValue = parseFloat(observations[1].value) * valueMultiplier; change = latestValue - previousValue;
                     const relChangeThreshold = 0.0005; 
@@ -435,9 +440,8 @@
                         colorClass = positiveChangeIsGood ? 'red' : 'green'; trendDescription = "Dalend";
                     }
                 }
-
-                if (higherIsBetterThreshold !== null) {
-                    const thresholdOffset = unit === "%" ? 0.2 : 1.5;
+                if (higherIsBetterThreshold !== null) { 
+                    const thresholdOffset = unit === "%" ? 0.2 : 1.5; // Aangepaste offset
                     if (latestValue > higherIsBetterThreshold + thresholdOffset ) { 
                          colorClass = 'green'; trendDescription = latestValue > higherIsBetterThreshold ? `Boven ${higherIsBetterThreshold}` : trendDescription;
                     } else if (latestValue < higherIsBetterThreshold - thresholdOffset ) {
@@ -446,41 +450,37 @@
                          colorClass = 'yellow'; trendDescription = `Rond ${higherIsBetterThreshold}`;
                     }
                 }
-                
                 if (title.includes("M2") && colorClass === "green") actionHint = "Hoge liquiditeit: positief voor assets. Check TA voor instap.";
                 else if (title.includes("Rente") && colorClass === "green") actionHint = "Dalende rente: bull-signaal. Longs op dips/breakouts.";
                 else if (title.includes("Rente") && colorClass === "red") actionHint = "Stijgende rente: bear-signaal. Wees voorzichtig met longs.";
                 else if (title.includes("Yield Curve") && colorClass === "red") actionHint = "Recessie alert! Max. voorzichtigheid, overweeg kapitaalbescherming.";
                 else if (title.includes("Inflatie") && colorClass === "green") actionHint = "Dalende inflatie: kan Fed m milder maken. Positief.";
                 else if (title.includes("Inflatie") && colorClass === "red") actionHint = "Stijgende inflatie: kan Fed tot actie dwingen. Negatief.";
+                else if (title.includes("ISM PMI") && colorClass === "green") actionHint = "Productie groeit; positief economisch signaal.";
+                else if (title.includes("ISM PMI") && colorClass === "red") actionHint = "Productie krimpt; negatief economisch signaal.";
 
 
                 let fullDetailText = `${trendText} (${trendDescription})`;
                 setIndicator(elementName, title, fullDetailText, colorClass, null, actionHint);
                 return { value: latestValue, colorClass, name: title, detail: trendText.split('(')[0].trim(), detailFull: fullDetailText, positiveChangeIsGood, change };
             } else { 
-                setIndicator(elementName, title, 'Geen data (FRED)', 'neutral', 'Geen observaties van FRED.'); 
-                return { ...defaultReturn, detail: 'Geen data (FRED)', detailFull:'Geen observaties van FRED. Mogelijk 404 via proxy.' };
+                setIndicator(elementName, title, `Geen data (${seriesId})`, 'neutral', `Mogelijk geen obs. voor ${seriesId}`); return defaultReturn;
             }
-        } catch (error) {
+        } catch (error) { 
             let errMsg = error.message || "Failed to fetch (FRED via Proxy)";
              if (errMsg.includes("API Fout: Status 404") || (error.message && error.message.includes("Not Found"))) {
                 errMsg = `FRED API 404: ${seriesId} niet gevonden.`;
             } else if (errMsg.includes("Proxy JSON Parse Fout")) {
                 errMsg = `Proxy parse error: ${seriesId}. Check console.`;
             }
-            console.error(`Error in fetchFredSeries (via Proxy) for ${seriesId}:`, error);
-            setIndicator(elementName, title, 'Data Error', 'neutral', errMsg);
-            return { ...defaultReturn, detail: 'Data Error', detailFull: errMsg };
+            console.error(`Error in fetchFredSeries (via Proxy) for ${seriesId}:`, error.message);
+            setIndicator(elementName, title, 'Data Error', 'neutral', errMsg.substring(0,50)); return defaultReturn;
         }
     }
     
     async function fetchFmpQuote(symbol, elementName, title, positiveChangeIsGood = true, isIndexType = true) {
         const defaultReturn = { value: null, changePercent: null, colorClass: 'neutral', name: title, detail: 'Laden...', detailFull: 'Laden...', positiveChangeIsGood };
-        if (FMP_API_KEY === '' || !FMP_API_KEY) {
-            setIndicator(elementName, title, 'Data Error', 'neutral', 'Koppel FMP API Key');
-            return { ...defaultReturn, detail: 'API Key Mist', detailFull: 'FMP API Key niet geconfigureerd.' };
-        }
+        if (!FMP_API_KEY) { setIndicator(elementName, title, 'Data Error', 'neutral', 'Koppel FMP API Key'); return defaultReturn; }
         const url = `https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${FMP_API_KEY}`;
         try {
             const data = await fetchWithCache(url); 
@@ -489,10 +489,7 @@
                 const price = parseFloat(quote.price);
                 const changePercent = parseFloat(quote.changesPercentage);
 
-                if (isNaN(price) || isNaN(changePercent)) {
-                    setIndicator(elementName, title, 'Ongeldige data (FMP)', 'neutral', 'Ongeldige waarde FMP');
-                    return { ...defaultReturn, detail: 'Ongeldige data (FMP)', detailFull: 'Ongeldige data van FMP.' };
-                }
+                if (isNaN(price) || isNaN(changePercent)) { setIndicator(elementName, title, 'Ongeldige data (FMP)', 'neutral', 'Ongeldige waarde FMP'); return defaultReturn; }
                 let colorClass;
                 const threshold = isIndexType ? 0.10 : 0.30; 
                 if (changePercent > threshold) { colorClass = positiveChangeIsGood ? 'green' : 'red'; }
@@ -501,47 +498,28 @@
                 let fullDetailText = `${price.toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
                 setIndicator(elementName, title, fullDetailText, colorClass);
                 return { value: price, changePercent, colorClass, name: title, detail: price.toFixed(2), detailFull: fullDetailText, positiveChangeIsGood };
-            } else if (data && data.length > 0 && data[0]["Error Message"]) { 
-                let errMsg = data[0]["Error Message"];
-                 if(errMsg.toLowerCase().includes("limit exceeded") || errMsg.toLowerCase().includes("invalid api key")) errMsg = "FMP API Limiet/Key Probleem";
-                setIndicator(elementName, title, `FMP: ${errMsg.substring(0,30)}`, 'neutral', errMsg);
-                return { ...defaultReturn, detail: `FMP Error`, detailFull: `FMP API error: ${errMsg}` };
-            } else if (data && data["Error Message"]) { 
-                let errMsg = data["Error Message"];
+            } else if (data && (data.length === 0 || data[0]["Error Message"] || data["Error Message"])) { 
+                let errMsg = (data[0] && data[0]["Error Message"]) || data["Error Message"] || "Lege response (FMP)";
                 if(errMsg.toLowerCase().includes("limit exceeded") || errMsg.toLowerCase().includes("invalid api key")) errMsg = "FMP API Limiet/Key Probleem";
-                setIndicator(elementName, title, `FMP: ${errMsg.substring(0,30)}`, 'neutral', errMsg);
-                return { ...defaultReturn, detail: `FMP Error`, detailFull: `FMP API error: ${errMsg}` };
-            }
-             else {
-                let noDataMsg = 'Geen data (FMP)';
-                if (data && data.length === 0) noDataMsg = 'Lege response (FMP)';
-                setIndicator(elementName, title, noDataMsg, 'neutral', 'Mogelijk ongeldig symbool of API probleem.');
-                return { ...defaultReturn, detail: noDataMsg, detailFull: `${noDataMsg} (mogelijk ongeldig symbool, API key probleem of geen data voor symbool van FMP).` };
+                setIndicator(elementName, title, `FMP: ${errMsg.substring(0,30)}`, 'neutral', errMsg); return defaultReturn;
+            } else {
+                setIndicator(elementName, title, 'Geen data (FMP)', 'neutral', 'Mogelijk ongeldig symbool.'); return defaultReturn;
             }
         } catch (error) {
-            let errMsg = error.message && error.message.includes("API Fout:") ? error.message : "Failed to fetch";
-             if (error.message && (error.message.includes("API Fout: 401") || error.message.includes("API Fout: 403"))){ errMsg = "FMP API Key ongeldig/geblokkeerd"; }
-             else if (error.message && error.message.includes("API Fout: 429")){ errMsg = "FMP API Limiet bereikt"; }
-            setIndicator(elementName, title, 'Data Error', 'neutral', errMsg);
-            return { ...defaultReturn, detail: 'Data Error', detailFull: errMsg };
+            let errMsg = "FMP: " + (error.message.includes("API Fout:") ? error.message.split("API Fout:")[1].trim() : "Failed to fetch");
+            setIndicator(elementName, title, 'Data Error', 'neutral', errMsg.substring(0,50)); return defaultReturn;
         }
     }
 
     async function fetchFinnhubQuote(symbol, elementName, title, positiveChangeIsGood = true, isIndexType = true) {
         const defaultReturn = { value: null, changePercent: null, colorClass: 'neutral', name: title, detail: 'Laden...', detailFull: 'Laden...', positiveChangeIsGood };
-        if (FINNHUB_API_KEY === '' || !FINNHUB_API_KEY) {
-            setIndicator(elementName, title, 'Data Error', 'neutral', 'Koppel Finnhub API Key');
-            return { ...defaultReturn, detail: 'API Key Mist', detailFull: 'Finnhub API Key niet geconfigureerd.' };
-        }
+        if (!FINNHUB_API_KEY) { setIndicator(elementName, title, 'Data Error', 'neutral', 'Koppel Finnhub API Key'); return defaultReturn; }
         const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`;
         try {
             const data = await fetchWithCache(url);
             if (data && data.c !== undefined && data.dp !== undefined && data.t !== 0) {
                 const price = parseFloat(data.c); const changePercent = parseFloat(data.dp);
-                if (isNaN(price) || isNaN(changePercent)) {
-                    setIndicator(elementName, title, 'Ongeldige data (FH)', 'neutral', 'Ongeldige waarde FH');
-                    return { ...defaultReturn, detail: 'Ongeldige data', detailFull: 'Ongeldige data van Finnhub.' };
-                }
+                if (isNaN(price) || isNaN(changePercent)) {setIndicator(elementName, title, 'Ongeldige data (FH)', 'neutral', 'Ongeldige waarde FH'); return defaultReturn;}
                 let colorClass; const threshold = isIndexType ? 0.15 : 0.4; 
                 if (changePercent > threshold) { colorClass = positiveChangeIsGood ? 'green' : 'red'; }
                 else if (changePercent < -threshold) { colorClass = positiveChangeIsGood ? 'red' : 'green'; }
@@ -551,28 +529,21 @@
                 return { value: price, changePercent, colorClass, name: title, detail: price.toFixed(2), detailFull: fullDetailText, positiveChangeIsGood };
             } else if (data && data.error) {
                  let errMsg = data.error;
-                 if(errMsg.toLowerCase().includes("invalid api key") || errMsg.toLowerCase().includes("please subscribe to get us stock data")) errMsg = "Finnhub API Key/Abo Probleem";
-                setIndicator(elementName, title, `Finnhub: ${errMsg.substring(0,30)}`, 'neutral', errMsg);
-                return { ...defaultReturn, detail: `Finnhub Error`, detailFull: `Finnhub API error: ${errMsg}` };
+                 if(errMsg.toLowerCase().includes("invalid api key") || errMsg.toLowerCase().includes("please subscribe")) errMsg = "Finnhub Key/Abo Probleem";
+                setIndicator(elementName, title, `Finnhub: ${errMsg.substring(0,30)}`, 'neutral', errMsg); return defaultReturn;
             } else if (data && (data.c === 0 || data.t === 0)){ 
-                setIndicator(elementName, title, 'Geen data (Finnhub Nul/Stale)', 'neutral', 'Finnhub retourneerde nullen of oude data. Mogelijk onbekend/vertraagd symbool.');
-                return { ...defaultReturn, detail: 'Geen data (FH Nul/Stale)', detailFull: 'Finnhub retourneerde nullen of oude data. Mogelijk onbekend/vertraagd symbool.' };
-            }
-            else {
-                setIndicator(elementName, title, 'Geen data (Finnhub)', 'neutral', 'Mogelijk ongeldig symbool of API probleem.');
-                return { ...defaultReturn, detail: 'Geen data (FH)', detailFull: 'Geen data van Finnhub (mogelijk ongeldig symbool of API probleem).' };
+                setIndicator(elementName, title, 'Geen data (FH Nul/Stale)', 'neutral', 'Finnhub: 0/stale data.'); return defaultReturn;
+            } else {
+                setIndicator(elementName, title, 'Geen data (Finnhub)', 'neutral', 'Mogelijk ongeldig symbool.');return defaultReturn;
             }
         } catch (error) {
-            let errMsg = error.message && error.message.includes("API Fout:") ? error.message : "Failed to fetch";
-             if (error.message && (error.message.includes("API Fout: 401") || error.message.includes("API Fout: 403"))){ errMsg = "Finnhub API Key ongeldig/geblokkeerd"; }
-             else if (error.message && error.message.includes("API Fout: 429")){ errMsg = "Finnhub API Limiet bereikt"; }
-            setIndicator(elementName, title, 'Data Error', 'neutral', errMsg);
-            return { ...defaultReturn, detail: 'Data Error', detailFull: errMsg };
+            let errMsg = "Finnhub: " + (error.message.includes("API Fout:") ? error.message.split("API Fout:")[1].trim() : "Failed to fetch");
+            setIndicator(elementName, title, 'Data Error', 'neutral', errMsg.substring(0,50)); return defaultReturn;
         }
     }
 
     async function fetchCryptoFearGreed() {
-        const title = "Crypto F&G"; const elementName = 'cryptoFearGreed';
+        const title = "Crypto F&G"; const elementName = 'cryptoFearGreed'; //... (rest zoals v2.8)
         const defaultReturn = { value: null, classification: 'Laden...', colorClass: 'neutral', name: title, detail: 'Laden...', detailFull: 'Laden...', isBullish: false, isBearish: false };
         let actionHint = null;
         const url = 'https://api.alternative.me/fng/?limit=1&format=json';
@@ -587,20 +558,17 @@
             else { colorClass = 'red'; detailText = `${value} (Extr. Hebzucht)`; isBearish = true; actionHint = "Contra: Extr. Hebzucht kan top signaal zijn. Overweeg winstname.";} 
             setIndicator(elementName, title, detailText, colorClass, null, actionHint);
             return { value, classification, colorClass, name: title, detail: classification, detailFull: detailText, isBullish, isBearish };
-        } catch (error) {
-            let errMsg = error.message && error.message.includes("API Fout:") ? error.message : "Failed to fetch";
-            setIndicator(elementName, title, 'Data Error', 'neutral', errMsg); return { ...defaultReturn, detail: 'Data Error', detailFull: errMsg };
-        }
+        } catch (error) { setIndicator(elementName, title, 'Data Error', 'neutral', "Failed to fetch F&G"); return defaultReturn; }
     }
 
-    async function fetchCryptoPrice(coinId, elementName, title) {
+    async function fetchCryptoPrice(coinId, elementName, title) { //... (rest zoals v2.8)
         const defaultReturn = { value: null, change24h: null, colorClass: 'neutral', name: title, detail: 'Laden...', detailFull: 'Laden...', isBullish: false, isBearish: false };
         let actionHint = null;
         const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`;
         try {
             const data = await fetchWithCache(url);
-            if (!data || !data[coinId] || data[coinId].usd === undefined || data[coinId].usd_24h_change === undefined) {
-                 setIndicator(elementName, title, 'Prijsdata ongeldig (CG)', 'neutral', 'Ongeldige waarde CG'); return {...defaultReturn, detail:'Ongeldige data (CG)', detailFull:'Ongeldige prijsdata van CoinGecko.'};
+             if (!data || !data[coinId] || data[coinId].usd === undefined || data[coinId].usd_24h_change === undefined) {
+                 setIndicator(elementName, title, 'Prijsdata ongeldig (CG)', 'neutral', 'Ongeldige waarde CG'); return defaultReturn;
             }
             const price = data[coinId].usd; const change24h = data[coinId].usd_24h_change;
             let trendStatus, colorClass; let isBullish = false, isBearish = false;
@@ -610,13 +578,10 @@
             let fullDetailText = `${trendStatus} (${price.toFixed(price < 1 ? 4 : 2)} USD, ${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}% 24u)`;
             setIndicator(elementName, title, fullDetailText, colorClass, null, actionHint);
             return { value: price, change24h, colorClass, name: title, detail: trendStatus, detailFull: fullDetailText, isBullish, isBearish };
-        } catch (error) {
-            let errMsg = error.message && error.message.includes("API Fout:") ? error.message : "Failed to fetch";
-            setIndicator(elementName, title, 'Data Error', 'neutral', errMsg); return {...defaultReturn, detail:'Data Error', detailFull: errMsg};
-        }
+        } catch (error) { setIndicator(elementName, title, 'Data Error', 'neutral', "Failed to fetch prijs"); return defaultReturn; }
     }
 
-    async function fetchCoinGeckoGlobalData() {
+    async function fetchCoinGeckoGlobalData() { // ... (rest zoals v2.8, inclusief actionHints)
         const defaultReturn = { btcDominanceTrend: null, ethDominanceTrend: null, altcoinMarketCapTrend: null };
         const url = 'https://api.coingecko.com/api/v3/global';
         try {
@@ -631,7 +596,7 @@
                 btcDt = `${btcD.toFixed(1)}% (${trendStatus})`;
             } else { trendStatus = "Initieel"; }
             setIndicator('btcDominanceTrend', 'BTC Dominantie', btcDt, btcDc, null, actionHintBTCD);
-            results.btcDominanceTrend = { value: btcD, colorClass: btcDc, name: 'BTC Dominantie', detail: `${btcD.toFixed(1)}%`, detailFull: btcDt, isBullish: btcDisB, isBearish: btcDisBe };
+            results.btcDominanceTrend = { value: btcD, colorClass: btcDc, name: 'BTC Dominantie', detail: `${btcD.toFixed(1)}%`, detailFull: btcDt, isBullish:(btcDc==='green'), isBearish:(btcDc==='red') };
             if (previousBtcDom === null && btcD !== undefined) previousBtcDom = btcD;
 
             const ethD = globalData.market_cap_percentage.eth; let ethDc = 'yellow', ethDt = `${ethD.toFixed(1)}% (Initieel)`; let ethDisB = false, ethDisBe = false;
@@ -642,7 +607,7 @@
                 ethDt = `${ethD.toFixed(1)}% (${trendStatus})`;
             } else { trendStatus = "Initieel"; }
             setIndicator('ethDominanceTrend', 'ETH Dominantie', ethDt, ethDc, null, actionHintETHD);
-            results.ethDominanceTrend = { value: ethD, colorClass: ethDc, name: 'ETH Dominantie', detail: `${ethD.toFixed(1)}%`, detailFull: ethDt, isBullish: ethDisB, isBearish: ethDisBe };
+            results.ethDominanceTrend = { value: ethD, colorClass: ethDc, name: 'ETH Dominantie', detail: `${ethD.toFixed(1)}%`, detailFull: ethDt, isBullish:(ethDc==='green'), isBearish:(ethDc==='red') };
             if (previousEthDom === null && ethD !== undefined) previousEthDom = ethD;
 
             const totalMC = globalData.total_market_cap.usd; const btcMC = btcD / 100 * totalMC; const altMC = totalMC - btcMC;
@@ -654,21 +619,14 @@
                 altMCt = `$${altMCf}B (${trendStatus})`;
             } else { trendStatus = "Initieel"; }
             setIndicator('altcoinMarketCapTrend', 'Altcoin MarketCap (Ex-BTC)', altMCt, altMCc, null, actionHintAltMC);
-            results.altcoinMarketCapTrend = { value: altMC, colorClass: altMCc, name: 'Altcoin MC', detail: `$${altMCf}B`, detailFull: altMCt, isBullish: altDisB, isBearish: altDisBe };
+            results.altcoinMarketCapTrend = { value: altMC, colorClass: altMCc, name: 'Altcoin MC', detail: `$${altMCf}B`, detailFull: altMCt, isBullish:(altMCc==='green'), isBearish:(altMCc==='red')};
             if (previousAltCap === null && altMC !== undefined) previousAltCap = altMC;
 
             return results;
-        } catch (error) {
-            let errMsg = error.message && error.message.includes("API Fout:") ? error.message : "Failed to fetch CG Global";
-            console.error('Error CoinGecko Global:', errMsg);
-            setIndicator('btcDominanceTrend', 'BTC Dominantie', 'Data Error', 'neutral', errMsg);
-            setIndicator('ethDominanceTrend', 'ETH Dominantie', 'Data Error', 'neutral', errMsg);
-            setIndicator('altcoinMarketCapTrend', 'Altcoin MarketCap (Ex-BTC)', 'Data Error', 'neutral', errMsg);
-            return defaultReturn;
-        }
+        } catch (error) { setIndicator('btcDominanceTrend', 'BTC.D', 'Error', 'neutral'); setIndicator('ethDominanceTrend', 'ETH.D', 'Error', 'neutral'); setIndicator('altcoinMarketCapTrend', 'AltMC', 'Error', 'neutral'); return defaultReturn; }
     }
 
-    async function calculateEthBtcRatio(btcData, ethData) {
+    async function calculateEthBtcRatio(btcData, ethData) { // ... (rest zoals v2.8, inclusief actionHints)
         const title = "ETH/BTC Ratio"; const elementName = 'ethBtcRatioTrend';
         const defaultReturn = { value: null, colorClass: 'neutral', name: title, detail: 'Laden...', detailFull: 'Laden...', isBullish: false, isBearish: false };
         let actionHint = null;
@@ -684,20 +642,16 @@
             setIndicator(elementName, title, trendText, colorClass, null, actionHint);
             if (previousEthBtcRatio === null && ratio !== undefined) previousEthBtcRatio = ratio;
             return { value: ratio, colorClass, name: title, detail: ratio.toFixed(5), detailFull: trendText, isBullish, isBearish };
-        } else { 
-            setIndicator(elementName, title, 'Prijsdata BTC/ETH mist', 'neutral', 'BTC/ETH prijsdata niet beschikbaar'); 
-            return defaultReturn;
-        }
+        } else { setIndicator(elementName, title, 'Prijsdata mist', 'neutral'); return defaultReturn; }
     }
-
-
+    
+    // ---- ANALYSE & UPDATE FUNCTIES (v2.8 met strategy hints) ----
     function analyzeAndScore(results, relevantKeysAndWeights) {
         let score = 0; let totalWeightApplied = 0;
         let positiveFactors = []; let negativeFactors = []; let numValidSignals = 0;
         for (const key in relevantKeysAndWeights) {
             const indicator = results[key]; 
             const baseWeight = relevantKeysAndWeights[key]; 
-
             if (indicator && indicator.colorClass && indicator.colorClass !== 'neutral' && indicator.detail &&
                 !indicator.detail.toLowerCase().includes('api key') && !indicator.detail.toLowerCase().includes('data mist') &&
                 !indicator.detail.toLowerCase().includes('ongeldig') && !indicator.detail.toLowerCase().includes('laden') && 
@@ -708,21 +662,12 @@
                 let factorName = indicator.name || key;
                 let factorDetailShort = indicator.detail.split('(')[0].trim() || indicator.value?.toFixed(2) || indicator.detail;
                 let factorDetailForTooltip = indicator.detailFull || indicator.detail;
-                
-                if (indicator.colorClass === 'green') { 
-                    currentScoreContribution = baseWeight; 
-                } else if (indicator.colorClass === 'red') { 
-                    currentScoreContribution = -baseWeight; 
-                }
-                
+                if (indicator.colorClass === 'green') { currentScoreContribution = baseWeight; } 
+                else if (indicator.colorClass === 'red') { currentScoreContribution = -baseWeight; }
                 score += currentScoreContribution; 
-                totalWeightApplied += baseWeight; 
-                
-                if (currentScoreContribution > 0) { 
-                    positiveFactors.push({ name: factorName, detail: factorDetailShort, detailFull: factorDetailForTooltip }); 
-                } else if (currentScoreContribution < 0) { 
-                    negativeFactors.push({ name: factorName, detail: factorDetailShort, detailFull: factorDetailForTooltip }); 
-                }
+                totalWeightApplied += Math.abs(baseWeight); // Gebruik absolute waarde
+                if (currentScoreContribution > 0) { positiveFactors.push({ name: factorName, detail: factorDetailShort, detailFull: factorDetailForTooltip }); } 
+                else if (currentScoreContribution < 0) { negativeFactors.push({ name: factorName, detail: factorDetailShort, detailFull: factorDetailForTooltip }); }
             }
         }
         const percentageScore = totalWeightApplied > 0 ? (score / totalWeightApplied) * 100 : 0;
@@ -730,7 +675,7 @@
     }
 
      function updateGeneralMarketCondition(results) {
-        const weights = { /* ... (je bestaande gewichten) ... */ 
+        const weights = { 
             m2Trend: 1, interest10yrTrend: 1.5, yieldCurve: 2, unemploymentTrend: 1, 
             inflationTrend: 1.2, ppiTrend: 1.0, breakeven10yrTrend: 1.0,
             retailSalesTrend: 1, ismPmiTrend: 1.5, dxyTrend: 1.2, goldTrend: 0.5, 
@@ -742,10 +687,14 @@
         let conditionText = "Neutraal / Gemengd";
         let strategyHint = "Markt gemengd. DCA op support/weerstand. Wees selectief.";
 
-        if (analysis.numSignals < 10 && (FRED_API_KEY === '' || FINNHUB_API_KEY === '' || FMP_API_KEY === '')) { 
+        if (analysis.numSignals < 10 && (!FRED_API_KEY || !FINNHUB_API_KEY || !FMP_API_KEY)) { 
             conditionText = "API Key(s) Mist"; strategyHint = "Configureer alle API keys.";
-        } else if (analysis.numSignals < 5) { 
+        } else if (analysis.numSignals < 5 && analysis.numSignals > 0) { 
             conditionText = "Onvoldoende Data"; strategyHint = "Wacht op meer data.";
+        } else if (analysis.numSignals === 0 && (!FRED_API_KEY || !FINNHUB_API_KEY || !FMP_API_KEY)) {
+             conditionText = "API Key(s) Mist"; strategyHint = "Configureer alle API keys.";
+        } else if (analysis.numSignals === 0) {
+            conditionText = "Laden..."; strategyHint = "Data wordt geladen...";
         } else if (analysis.percentageScore > 55) {
             conditionText = "Zeer Positief"; strategyHint = "Zeer gunstig. Focus op long posities op sterke trends & breakouts. Overweeg leverage voorzichtig.";
         } else if (analysis.percentageScore > 15) {
@@ -759,15 +708,19 @@
     }
 
     function updateCryptoMarketCondition(results) {
-        const cryptoWeights = { /* ... (je crypto gewichten) ... */ 
+        const cryptoWeights = { 
             cryptoFearGreed: 1.5, btcPriceTrend: 1.2, ethPriceTrend: 1.2, altcoinMarketCapTrend: 1 
         };
         const analysis = analyzeAndScore(results, cryptoWeights); 
         let conditionText = "Crypto Neutraal";
         let strategyHint = "Crypto neutraal. Handel ranges of wacht op duidelijke directionele push. DCA op support.";
 
-        if (analysis.numSignals < 3) { 
+        if (analysis.numSignals < 2 && (!FINNHUB_API_KEY && !FMP_API_KEY)) { // Minder strenge check voor crypto
+            conditionText = "API Key(s) Mist"; strategyHint = "Configureer API keys.";
+        } else if (analysis.numSignals < 2 && analysis.numSignals > 0) { 
             conditionText = "Crypto Onvoldoende Data"; strategyHint = "Wacht op meer crypto signalen.";
+        } else if (analysis.numSignals === 0) {
+            conditionText = "Laden..."; strategyHint = "Data wordt geladen...";
         } else if (analysis.percentageScore > 55) {
             conditionText = "Crypto Zeer Bullish"; strategyHint = "Zeer bullish! Focus op longs, vooral alts als BTC.D daalt. Koop breakouts.";
         } else if (analysis.percentageScore > 15) {
@@ -804,7 +757,7 @@
     }
 
     function updateStockMarketCondition(results) {
-        const weights = { /* ... (je aandelen gewichten) ... */  
+        const weights = {   
             sp500Trend: 1.2, nasdaq100Trend: 1.2, russell2000Trend: 1.0,
             stockFearGreedVIX: 1.5, yieldCurve: 1.5, ismPmiTrend: 1.2, bondSpreadsTrend: 1, 
             interest10yrTrend: 1, retailSalesTrend: 0.8, unemploymentTrend: 0.5, ppiTrend: 0.7, 
@@ -814,10 +767,14 @@
         let conditionText = "Aandelen Neutraal";
         let strategyHint = "Aandelen neutraal. Sectorrotatie en sterke stock picking. DCA op dips.";
 
-        if (analysis.numSignals < 6 && (FRED_API_KEY === '' || FINNHUB_API_KEY === '')) { 
+        if (analysis.numSignals < 6 && (!FRED_API_KEY || !FINNHUB_API_KEY)) { 
             conditionText = "API Key(s) Mist"; strategyHint = "Configureer API keys."; 
-        } else if (analysis.numSignals < 4) { 
+        } else if (analysis.numSignals < 4 && analysis.numSignals > 0) { 
             conditionText = "Aandelen Onvoldoende Data"; strategyHint = "Wacht op meer data."; 
+        } else if (analysis.numSignals === 0 && (!FRED_API_KEY || !FINNHUB_API_KEY )) {
+            conditionText = "API Key(s) Mist"; strategyHint = "Configureer API keys.";
+        } else if (analysis.numSignals === 0) {
+            conditionText = "Laden..."; strategyHint = "Data wordt geladen...";
         } else if (analysis.percentageScore > 55) {
             conditionText = "Aandelen Zeer Bullish"; strategyHint = "Zeer bullish. Longs op sterke sectoren, koop breakouts. Overweeg groei-aandelen.";
         } else if (analysis.percentageScore > 15) {
@@ -830,11 +787,16 @@
         setMarketConditionCard('stockMarketCondition', 'stockMarketText', 'stockMarketFactors', 'stockMarketStrategy', analysis.percentageScore, conditionText, analysis.positiveFactors, analysis.negativeFactors, analysis.numSignals, strategyHint);
     }
 
-
+    // ---- HOOFD LAAD FUNCTIE ----
     async function loadDashboardData() {
         console.log("loadDashboardData gestart...");
-        document.getElementById('lastUpdated').textContent = `Laden... ${formatDate(new Date())}`;
+        document.getElementById('lastUpdated').textContent = `Laden... (${formatDate(new Date())})`; // Tijd direct bij start
         let results = {};
+
+        // Initieel de condition cards op "Laden..." zetten
+        updateGeneralMarketCondition(results);
+        updateCryptoMarketCondition(results);
+        updateStockMarketCondition(results);
 
         const initialPromises = [
             fetchFredSeries('M2SL', 'm2Trend', 'M2 Geldhoeveelheid', true, " T USD", 1/1000).then(r => results.m2Trend = r),
@@ -845,20 +807,16 @@
             fetchFredSeries('PPIACO', 'ppiTrend', 'PPI Trend', false, " (Index)").then(r => results.ppiTrend = r),
             fetchFredSeries('T10YIE', 'breakeven10yrTrend', '10jr Inflatieverwachting', false, "%").then(r => results.breakeven10yrTrend = r),
             fetchFredSeries('RRSFS', 'retailSalesTrend', 'Retail Sales', true, " B USD", 1/1000).then(r => results.retailSalesTrend = r),
-            fetchFredSeries('PMI', 'ismPmiTrend', 'ISM PMI', true, "", 1, 50).then(r => results.ismPmiTrend = r), 
-            
+            fetchFredSeries('PMI', 'ismPmiTrend', 'ISM PMI', true, "", 1, 50).then(r => results.ismPmiTrend = r),             
             fetchFmpQuote('DX-Y.NYB', 'dxyTrend', 'US Dollar Index (DXY)', false, true).then(r => results.dxyTrend = r),
             fetchFinnhubQuote('GLD', 'goldTrend', 'Goud ETF (GLD)', true, false).then(r => results.goldTrend = r), 
             fetchFinnhubQuote('USO', 'oilTrend', 'Olie ETF (USO)', false, false).then(r => results.oilTrend = r),
             fetchFinnhubQuote('CPER', 'copperTrend', 'Koper ETF (CPER)', true, false).then(r => results.copperTrend = r), 
             fetchFredSeries('BAMLH0A0HYM2', 'bondSpreadsTrend', 'HY Bond Spreads', false, "%").then(r => results.bondSpreadsTrend = r), 
-            
             fetchCryptoFearGreed().then(r => results.cryptoFearGreed = r), 
             fetchFinnhubQuote('^VIX', 'stockFearGreedVIX', 'Aandelen F&G (VIX)', false, false).then(r => results.stockFearGreedVIX = r), 
-            
             fetchCryptoPrice('bitcoin', 'btcPriceTrend', 'Bitcoin Prijs').then(r => results.btcPriceTrend = r),
             fetchCryptoPrice('ethereum', 'ethPriceTrend', 'Ethereum Prijs').then(r => results.ethPriceTrend = r),
-            
             fetchFinnhubQuote('SPY', 'sp500Trend', 'S&P 500 (SPY ETF)', true, true).then(r => results.sp500Trend = r),
             fetchFinnhubQuote('QQQ', 'nasdaq100Trend', 'Nasdaq 100 (QQQ ETF)', true, true).then(r => results.nasdaq100Trend = r),
             fetchFinnhubQuote('IWM', 'russell2000Trend', 'Russell 2000 (IWM ETF)', true, true).then(r => results.russell2000Trend = r)
@@ -870,14 +828,14 @@
 
         allSettledResults.forEach((result, index) => {
             if (result.status === 'rejected') {
-                console.error(`Promise op index ${index} (data-ophaling) is mislukt:`, result.reason);
+                // De fout wordt al gelogd in de fetch functies, hier eventueel extra logging
+                console.warn(`Promise op index ${index} (initialPromises) is mislukt. Reason:`, result.reason?.message || result.reason);
             }
         });
 
         console.log("Verwerken van afgeleide indicatoren (Yield Curve, Fed Stance)...");
-        if (results.interest10yrTrend && results.interest10yrTrend.value !== null && results.interest10yrTrend.colorClass !== 'neutral' &&
-            results.interest2yrTrend && results.interest2yrTrend.value !== null && results.interest2yrTrend.colorClass !== 'neutral') {
-            const i10yr = results.interest10yrTrend; const i2yr = results.interest2yrTrend;
+        if (results.interest10yrTrend && results.interest10yrTrend.value !== null && results.interest2yrTrend && results.interest2yrTrend.value !== null ) {
+             const i10yr = results.interest10yrTrend; const i2yr = results.interest2yrTrend;
             const yieldSpread = i10yr.value - i2yr.value;
             let prevYieldSpread = null;
             if (i10yr.change !== null && i2yr.change !== null && i10yr.value !== null && i2yr.value !== null) {
@@ -901,42 +859,25 @@
             results.yieldCurve = {value:null, colorClass:'neutral', name:"Yield Curve", detail:"Rentedata mist", detailFull:"Rentedata 10j/2j mist voor Yield Curve berekening."};
         }
 
-        console.log("Afleiden Fed Stance...");
         const i10yrData = results.interest10yrTrend;
-        if (i10yrData && i10yrData.value !== null && i10yrData.change !== null && i10yrData.colorClass !== 'neutral' && !i10yrData.detail.toLowerCase().includes('api key')) {
-            let fedColor = 'yellow';
-            let fedText = "Neutraal";
-            let fedActionHint = "Fed standpunt neutraal. Volg persconferenties.";
-            if (i10yrData.colorClass === 'red') { 
-                fedText = "Verkrappend (Hawkish)"; fedColor = 'red'; fedActionHint = "Hawkish Fed: Negatief voor risico. Wees voorzichtig met leveraged longs.";
-            } else if (i10yrData.colorClass === 'green') { 
-                fedText = "Verruimend (Dovish)"; fedColor = 'green'; fedActionHint = "Dovish Fed: Positief voor risico. Zoek naar instapmomenten.";
-            }
+        if (i10yrData && i10yrData.value !== null && i10yrData.detail && !i10yrData.detail.toLowerCase().includes('api key') && !i10yrData.detail.toLowerCase().includes('error')) {
+            let fedColor = 'yellow'; let fedText = "Neutraal"; let fedActionHint = "Fed neutraal. Volg speeches.";
+            if (i10yrData.colorClass === 'red') { fedText = "Verkrappend (Hawkish)"; fedColor = 'red'; fedActionHint = "Hawkish Fed: Negatief voor risico."; }
+            else if (i10yrData.colorClass === 'green') { fedText = "Verruimend (Dovish)"; fedColor = 'green'; fedActionHint = "Dovish Fed: Positief voor risico."; }
             setIndicator('fedStance', 'Fed Beleid Stance', fedText, fedColor, null, fedActionHint);
             results.fedStance = { value: i10yrData.change, colorClass: fedColor, name: "Fed Beleid", detail: fedText, detailFull: fedText, positiveChangeIsGood: (fedColor === 'green') };
         } else {
-            let errorMsg = "10j Rentedata incompleet voor Fed Stance.";
-            if (!FRED_API_KEY) errorMsg = "Koppel FRED API Key";
-            else if (i10yrData && i10yrData.detail.toLowerCase().includes('api key')) errorMsg = "Koppel FRED API Key";
-            else if (i10yrData && i10yrData.detail.toLowerCase().includes('error')) errorMsg = i10yrData.detailFull || "Data Error 10j Rente";
-
-            setIndicator('fedStance', 'Fed Beleid Stance', 'Data onbeschikbaar', 'neutral', errorMsg);
-            results.fedStance = { value: null, colorClass: 'neutral', name: "Fed Beleid", detail: "Data onbeschikbaar", detailFull: errorMsg };
+             setIndicator('fedStance', 'Fed Beleid Stance', 'Rentedata mist', 'neutral', !FRED_API_KEY ? 'Koppel FRED Key' : '10j Rente data mist'); 
+             results.fedStance = {value:null, colorClass:'neutral', name:"Fed Beleid", detail:"Rentedata mist"};
         }
 
-
-        console.log("Ophalen CoinGecko global data...");
-        const cgData = await fetchCoinGeckoGlobalData();
+        const cgData = await fetchCoinGeckoGlobalData(); // Moet na de individuele crypto prijzen
         if (cgData) { Object.assign(results, cgData); }
-
-        console.log("Berekenen ETH/BTC Ratio...");
         results.ethBtcRatioTrend = await calculateEthBtcRatio(results.btcPriceTrend, results.ethPriceTrend);
 
-        console.log("Updaten van marktconditiekaarten...");
         updateGeneralMarketCondition(results);
         updateCryptoMarketCondition(results);
         updateStockMarketCondition(results);
-
         document.getElementById('lastUpdated').textContent = `Laatst bijgewerkt: ${formatDate(new Date())}`;
         console.log("loadDashboardData voltooid.");
     }
@@ -946,24 +887,44 @@
         document.querySelectorAll('.collapsible-trigger').forEach(trigger => {
             trigger.style.cursor = 'pointer';
             const content = trigger.nextElementSibling; 
+            if (!content || !content.classList.contains('collapsible-content')) {
+                return; 
+            }
 
             trigger.addEventListener('click', function() {
                 this.parentElement.classList.toggle('collapsed');
-                if (content) {
-                    if (content.style.display === 'none' || content.style.display === '') {
-                        content.style.display = 'block'; 
-                    } else {
-                        content.style.display = 'none';
-                    }
-                }
+                content.style.display = this.parentElement.classList.contains('collapsed') ? 'none' : 'block';
             });
         });
         
-         const allCards = document.querySelectorAll('.grid-container .card, .tradingview-container.card');
-         allCards.forEach((card, index) => {
-            // Collaboreer alles behalve de eerste kaart (Macro Omgeving) en de condition cards
-            const isConditionCard = card.classList.contains('condition-card') || card.parentElement.classList.contains('sub-conditions-grid');
-            if (index > 0 && !isConditionCard) { 
+        const allCards = document.querySelectorAll('.grid-container .card, .chart-container.card'); 
+        allCards.forEach((card, index) => {
+            const isConditionCard = card.classList.contains('condition-card') || 
+                                  (card.parentElement && card.parentElement.classList.contains('sub-conditions-grid'));
+            
+            // De allereerste kaart in de DOM (meestal #m2Trend's parent) moet open blijven.
+            // We identificeren de eerste kaart in de grid container.
+            const isFirstCardInGrid = card.parentElement && card.parentElement.classList.contains('grid-container') && card === card.parentElement.children[0];
+            
+            let shouldCollapse = true; 
+
+            if (isFirstCardInGrid || isConditionCard) { 
+                shouldCollapse = false;
+            }
+            
+            // Specifieke logica voor de TradingView kaart om die initieel in te klappen,
+            // Tenzij het de *enige* grafiekkaart is en de eerste kaart.
+            const isTradingViewCard = card.querySelector('#tradingview-widget-placeholder') !== null;
+            const isDexScreenerCard = card.querySelector('#dexscreener-widget-placeholder') !== null;
+
+            if (isTradingViewCard && !isFirstCardInGrid) { // TradingView altijd dicht als niet de eerste
+                 shouldCollapse = true;
+            }
+            // Als er zowel een DexScreener als een TradingView is, en DexScreener is de eerste grafiekkaart,
+            // dan kan TradingView dicht. Als TradingView de eerste grafiekkaart is, blijft die open.
+            // De huidige HTML structuur heeft DexScreener eerst.
+
+            if (shouldCollapse) {
                 const trigger = card.querySelector('.collapsible-trigger');
                 const content = card.querySelector('.collapsible-content');
                 if (trigger && content) {
@@ -971,10 +932,9 @@
                     content.style.display = 'none';
                 }
             }
-         });
+        });
     });
     // --- EINDE Inklapbare sectie JavaScript ---
-
 
     console.log("Event listener voor window.onload wordt ingesteld.");
     window.onload = loadDashboardData;
